@@ -1,0 +1,14 @@
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <header
+        android:fragment="com.google.vr.vrcore.AppCompatPreferenceFragment"
+        android:icon="@drawable/ic_settings_black_24dp"
+        android:title="@string/pref_header_general">
+        <extra android:name="settings" android:value="pref_general"/>
+    </header>
+
+    <header android:title="Shortcut for controllerclient" android:icon="@drawable/ic_play_circle_outline_black_24dp">
+        <intent android:targetPackage="com.google.vr.sdk.samples.controllerclient" android:targetClass="com.google.vr.sdk.samples.controllerclient.ControllerClientActivity"/>
+    </header>
+
+</preference-headers>

@@ -1,0 +1,73 @@
+syntax = "proto2";
+package protocol;
+
+option java_package = "com.google.vr.gvr.io.proto.nano";
+option java_outer_classname = "Protos";
+
+message PhoneEvent {
+
+    message MotionEvent {
+
+        message Pointer {
+            optional int32 id = 1;
+            optional float normalizedX = 2;
+            optional float normalizedY = 3;
+        }
+
+        optional uint64 timestamp = 1;
+        optional int32 action = 2;
+        repeated Pointer pointers = 3;
+    }
+
+    message GyroscopeEvent {
+        optional uint64 timestamp = 1;
+        optional float x = 2;
+        optional float y = 3;
+        optional float z = 4;
+    }
+
+    message AccelerometerEvent {
+        optional uint64 timestamp = 1;
+        optional float x = 2;
+        optional float y = 3;
+        optional float z = 4;
+    }
+
+    message DepthMapEvent {
+        optional uint64 timestamp = 1;
+        optional int32 width = 2;
+        optional int32 height = 3;
+        optional float zDistances = 4;
+    }
+
+    message OrientationEvent {
+        optional uint64 timestamp = 1;
+        optional float x = 2;
+        optional float y = 3;
+        optional float z = 4;
+        optional float w = 5;
+    }
+
+    message KeyEvent {
+        optional int32 action = 1;
+        optional int32 code = 2;
+    }
+
+    enum Type {
+        NONE = 0;
+        MOTION = 1;
+        GYROSCOPE = 2;
+        ACCELEROMETER = 3;
+        DEPTH_MAP = 4;
+        ORIENTATION = 5;
+        KEY = 6;
+    }
+
+    optional Type type = 1;
+    optional MotionEvent motionEvent = 2;
+    optional GyroscopeEvent gyroscopeEvent = 3;
+    optional AccelerometerEvent accelerometerEvent = 4;
+    optional DepthMapEvent depthMapEvent = 5;
+    optional OrientationEvent orientationEvent = 6;
+    optional KeyEvent keyEvent = 7;
+}

@@ -1,0 +1,23 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:defaultValue="@string/pref_default_ip_address"
+        android:inputType="number|numberDecimal"
+        android:digits="0123456789."
+        android:key="emulator_ip_address"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_ip_address" />
+
+    <EditTextPreference
+        android:defaultValue="@string/pref_default_port_number"
+        android:inputType="number"
+        android:digits="0123456789"
+        android:key="emulator_port_number"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_port_number" />
+
+</PreferenceScreen>
