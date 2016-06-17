@@ -84,8 +84,8 @@ public class EmulatorClientSocket implements Runnable {
             setState(ControllerStates.CONNECTING);
 
             try {
-                String ip = PreferenceManager.getDefaultSharedPreferences(this.context).getString("emulator_ip_address", "192.168.16.101");
-                String port = PreferenceManager.getDefaultSharedPreferences(this.context).getString("emulator_port_number", "7003");
+                String ip = PreferenceManager.getDefaultSharedPreferences(this.context).getString("emulator_ip_address", "192.168.1.101" /* default value pref_default_ip_address */);
+                String port = PreferenceManager.getDefaultSharedPreferences(this.context).getString("emulator_port_number", "7003" /* default value pref_default_port_number */);
                 InetSocketAddress address = new InetSocketAddress(ip, Integer.parseInt(port));
                 channel = SocketChannel.open();
                 channel.connect(address);

@@ -1,6 +1,12 @@
 syntax = "proto2";
 package protocol;
 
+//
+// - unofficial version -
+// this is my implementation of protocol
+// based on experience with the use of official SDK
+//
+
 option java_package = "com.google.vr.gvr.io.proto.nano";
 option java_outer_classname = "Protos";
 

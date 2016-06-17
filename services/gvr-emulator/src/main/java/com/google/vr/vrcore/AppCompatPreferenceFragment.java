@@ -56,8 +56,6 @@ public class AppCompatPreferenceFragment extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //getFragmentManager
-
         String settings = getArguments().getString("settings");
         resId = getResources().getIdentifier(settings, "xml", this.getContext().getPackageName());
 
