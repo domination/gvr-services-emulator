@@ -1,12 +1,5 @@
 package com.google.vr.vrcore;
 
-//https://github.com/google/wwgc
-//https://vr.google.com/cardboard/viewerprofilegenerator/
-//https://github.com/emertonom/CardboardProfileViewer
-//https://medium.com/google-developer-experts/using-google-cardboard-with-unsupported-vr-viewers-95c17e65bc1
-//554ppi
-//http://navroad.com/product/nexo-vr-box/
-
 import android.app.Fragment;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -201,6 +194,6 @@ public abstract class AppCompatPreferenceActivity extends PreferenceActivity {
     @Override
     public void onAttachFragment(Fragment fragment) {
         AppCompatPreferenceFragment appCompatFragment = (AppCompatPreferenceFragment) fragment;
-        appCompatFragment.Init(sBindPreferenceSummaryToValueListener);
+        appCompatFragment.Init(this.getApplicationContext(), sBindPreferenceSummaryToValueListener);
     }
 }

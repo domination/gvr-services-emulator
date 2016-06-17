@@ -2,7 +2,11 @@
 // building them.
 
 // Explicitly load all the libraries and samples using their full path.
+include ':libraries:base'
 include ':libraries:common'
+include ':libraries:controller'
+
+include ':samples:controllerclient'
 
 include ':services:gvr-emulator'
 

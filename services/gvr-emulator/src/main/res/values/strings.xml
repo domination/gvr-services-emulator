@@ -7,7 +7,7 @@
     <string name="pref_header_general">General</string>
 
     <string name="pref_title_ip_address">IP Address</string>
-    <string name="pref_default_ip_address">192.168.16.101</string>
+    <string name="pref_default_ip_address">192.168.1.101</string>
 
     <string name="pref_title_port_number">Port</string>
     <string name="pref_default_port_number">7003</string>

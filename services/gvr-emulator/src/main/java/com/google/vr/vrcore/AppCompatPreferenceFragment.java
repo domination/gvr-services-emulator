@@ -1,6 +1,7 @@
 package com.google.vr.vrcore;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -19,8 +20,14 @@ public class AppCompatPreferenceFragment extends PreferenceFragment {
 
     private int resId;
     private Preference.OnPreferenceChangeListener onPreferenceChangeListener;
+    private Context context;
+    @Override
+    public Context getContext() {
+        return context;
+    }
 
-    public void Init(Preference.OnPreferenceChangeListener onPreferenceChangeListener) {
+    public void Init(Context context, Preference.OnPreferenceChangeListener onPreferenceChangeListener) {
+        this.context = context;
         this.onPreferenceChangeListener = onPreferenceChangeListener;
     }
 
