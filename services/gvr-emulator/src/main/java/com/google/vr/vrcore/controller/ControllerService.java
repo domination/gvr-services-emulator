@@ -1,0 +1,229 @@
+package com.google.vr.vrcore.controller;
+
+import android.app.Service;
+import android.content.Intent;
+import android.os.Binder;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.RemoteException;
+import android.util.Log;
+
+import com.google.vr.vrcore.controller.api.ControllerInitResults;
+import com.google.vr.vrcore.controller.api.ControllerServiceConsts;
+import com.google.vr.vrcore.controller.api.ControllerStates;
+import com.google.vr.vrcore.controller.api.IControllerListener;
+import com.google.vr.vrcore.controller.api.IControllerService;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+
+public class ControllerService extends Service {
+
+    private HandlerThread handlerThread;
+    private Handler handler;
+    private Runnable stopAction;
+
+    private IControllerService.Stub controllerService;
+    private final Map mapListeners;
+    private final Map mapControllerProviders;
+    private int registerCount;
+
+    public ControllerService() {
+        this.mapListeners = Collections.synchronizedMap(new HashMap());
+        this.registerCount = 0;
+        this.mapControllerProviders = Collections.synchronizedMap(new HashMap());
+        this.stopAction = new Runnable() {
+            @Override
+            public void run() {
+                stopSelf();
+            }
+        };
+        this.controllerService = new IControllerService.Stub() {
+
+            @Override
+            public int initialize(int targetApiVersion) throws RemoteException {
+                Log.d("ControllerService", "initialize(" + targetApiVersion + ")");
+                return ControllerInitResults.SUCCESS;
+            }
+
+            @Override
+            public int getApiVersion() throws RemoteException {
+                Log.d("ControllerService", "getApiVersion");
+                return 2;
+            }
+
+            @Override
+            public void recenter(int controllerId) throws RemoteException {
+                Log.d("ControllerService", "recenter(" + controllerId + ")");
+            }
+
+            @Override
+            public boolean registerListener(final int controllerId, final String key, final IControllerListener listener) throws RemoteException {
+                Log.d("ControllerService", "registerListener(" + controllerId + ", " + key + ", " + listener.getClass().getName() + ")");
+                if (controllerId != 0 || listener == null) {
+                    return false;
+                }
+                final String keyMasked = getKeyUid(key);
+                handler.post(new Runnable() {
+                    @Override
+                    public final void run() {
+                        ControllerService.this.registerListener(controllerId, keyMasked, listener);
+                    }
+                });
+                return true;
+            }
+
+            @Override
+            public boolean unregisterListener(String key) throws RemoteException {
+                Log.d("ControllerService", "unregisterListener(" + key + ")");
+                String keyMasked = getKeyUid(key);
+                if ((mapListeners.get(keyMasked)) == null) {
+                    Log.d(ControllerService.class.getSimpleName(), "Listener not registered. Unregister failed.");
+                    return false;
+                }
+                mapListeners.remove(keyMasked);
+                return true;
+            }
+        };
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d("com.google.vr.vrcore", "onCreate");
+
+        if (this.handler == null) {
+            this.handlerThread = new HandlerThread(String.valueOf(ControllerService.class.getSimpleName()).concat(":Thread"));
+            this.handlerThread.start();
+            this.handler = new Handler(this.handlerThread.getLooper());
+        }
+
+        this.mapControllerProviders.put("Emulator", new com.google.vr.vrcore.controller.emulator.Controller(this.handler, getApplicationContext()));
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.d("com.google.vr.vrcore", "onBind " + intent.getAction());
+        restart();
+        if (ControllerServiceConsts.BIND_INTENT_ACTION.equals(intent.getAction())) {
+            return controllerService.asBinder();
+        }
+        return null;
+    }
+
+    @Override
+    public void onRebind(Intent intent) {
+        Log.d("com.google.vr.vrcore", "onRebind " + intent.getAction());
+        restart();
+    }
+
+    private BaseController controller = null;
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.d("com.google.vr.vrcore", "onUnbind " + intent.getAction());
+        if (this.controller != null) {
+            this.controller.stop();
+            this.controller = null;
+        }
+        this.handler.post(new Runnable() {
+            @Override
+            public void run() {
+                ensureLooper();
+                if (registerCount > 0) {
+                    registerCount--;
+                }
+                if (registerCount <= 0) {
+                    handler.postDelayed(stopAction, 5000);
+                }
+            }
+        });
+        return true;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d("com.google.vr.vrcore", "onDestroy");
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        this.handler.post(new Runnable() {
+            @Override
+            public void run() {
+                ensureLooper();
+                countDownLatch.countDown();
+            }
+        });
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if (this.handlerThread != null) {
+            this.handlerThread.quitSafely();
+        }
+    }
+
+    private String getKeyUid(String key) {
+        return String.format("%d:%d:%s", new Object[]{Integer.valueOf(Binder.getCallingUid()), Integer.valueOf(Binder.getCallingPid()), key});
+    }
+
+    private void ensureLooper() {
+        if (Looper.myLooper() != this.handler.getLooper()) {
+            throw new IllegalStateException("This must run on the ControllerService's thread.");
+        }
+    }
+
+    private void restart() {
+        this.handler.removeCallbacks(this.stopAction);
+
+        this.startService(new Intent(this, ControllerService.class));
+        this.handler.post(new Runnable() {
+            @Override
+            public void run() {
+                ensureLooper();
+                registerCount++;
+            }
+        });
+    }
+
+    public final void registerListener(int controllerId, String key, IControllerListener listener) {
+        ensureLooper();
+        Log.d("ControllerService", "registerListener(" + controllerId + ", " + key + ", " + listener.getClass().toString() + ")");
+        try {
+            this.mapListeners.put(key, new RegisteredControllerListener(controllerId, listener));
+            refreshMapListeners();
+        } catch (RemoteException e) {
+            Log.d(ControllerService.class.getSimpleName(), "Attempted to register a dead listener, ID " + (key.length() != 0 ? key : ""));
+        }
+    }
+
+    public final void refreshMapListeners() {
+        synchronized (this.mapListeners) {
+            Iterator it = this.mapListeners.entrySet().iterator();
+            while (it.hasNext()) {
+                RegisteredControllerListener registeredControllerListener = (RegisteredControllerListener) ((Map.Entry) it.next()).getValue();
+                if (!registeredControllerListener.setState(ControllerStates.SCANNING)) {
+                    it.remove();
+                    continue;
+                }
+
+                Iterator itControllerProviders = this.mapControllerProviders.entrySet().iterator();
+                while (itControllerProviders.hasNext()) {
+                    controller = (BaseController) ((Map.Entry) itControllerProviders.next()).getValue();
+                    controller.isEnabled = true;
+                    if (controller.isAvailable()) {
+                        controller.setControllerListener(registeredControllerListener);
+                        break;
+                    }
+                }
+                this.handler.post(controller);
+            }
+        }
+    }
+}

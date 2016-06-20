@@ -6,6 +6,8 @@
     <uses-feature android:name="android.software.vr.mode" android:required="false"/>
     <uses-feature android:name="android.hardware.vr.high_performance" android:required="false"/>
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
@@ -13,26 +15,37 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity
-            android:name=".SettingsActivity"
-            android:label="@string/app_name">
+        android:theme="@android:style/Theme.DeviceDefault.Light.DarkActionBar">
+
+        <service android:name=".common.VrCoreListenerService" android:permission="android.permission.BIND_VR_LISTENER_SERVICE" android:enabled="true" android:exported="true">
             <intent-filter>
+                <action android:name="android.service.vr.VrListenerService" />
+            </intent-filter>
+        </service>
+
+        <service android:name="com.google.vr.vrcore.controller.ControllerService" android:enabled="true" android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.vr.vrcore.controller.BIND" />
+            </intent-filter>
+        </service>
+
+        <activity
+            android:name=".settings.VrSettingsActivity"
+            android:label="@string/app_name"
+            android:enabled="true" android:exported="true">
+            <intent-filter android:priority="100">
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="com.google.vrtoolkit.cardboard.CONFIGURE" />
+                <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="com.google.intent.category.CARDBOARD" />
             </intent-filter>
-        </activity>
-
-        <service
-            android:name=".VrCoreListenerService"
-            android:enabled="true"
-            android:exported="true">
             <intent-filter>
-                <action android:name="com.google.vr.vrcore.controller.BIND"/>
+                <action android:name="com.google.intent.action.vr.VR_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-        </service>
+            </activity>
+
     </application>
 
 </manifest>
