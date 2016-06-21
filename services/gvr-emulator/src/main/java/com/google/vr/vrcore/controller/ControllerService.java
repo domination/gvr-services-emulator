@@ -49,7 +49,7 @@ public class ControllerService extends Service {
             @Override
             public int initialize(int targetApiVersion) throws RemoteException {
                 Log.d("ControllerService", "initialize(" + targetApiVersion + ")");
-                return ControllerInitResults.SUCCESS;
+                return 0; //com.google.vr.sdk.controller.ControllerManager.ApiStatus.OK = 0
             }
 
             @Override
