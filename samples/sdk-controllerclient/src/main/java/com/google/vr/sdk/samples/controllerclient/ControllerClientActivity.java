@@ -11,6 +11,8 @@ import com.google.vr.sdk.controller.Controller.ConnectionStates;
 import com.google.vr.sdk.controller.ControllerManager;
 import com.google.vr.sdk.controller.ControllerManager.ApiStatus;
 
+import java.util.Locale;
+
 /**
  * Minimal example demonstrating how to receive and process Daydream controller input. It connects
  * to a Daydream Controller and displays a simple graphical and textual representation of the
@@ -135,7 +137,7 @@ public class ControllerClientActivity extends Activity {
                     " " + controller.orientation + "\n" + controller.orientation.toAxisAngleString());
             if (controller.isTouching) {
                 controllerTouchpadView.setText(
-                        String.format("[%4.2f, %4.2f]", controller.touch.x, controller.touch.y));
+                        String.format(Locale.US, "[%4.2f, %4.2f]", controller.touch.x, controller.touch.y));
             } else {
                 controllerTouchpadView.setText("[ NO TOUCH ]");
             }

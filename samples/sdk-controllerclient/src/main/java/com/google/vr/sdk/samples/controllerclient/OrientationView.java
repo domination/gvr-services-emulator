@@ -51,13 +51,19 @@ public class OrientationView extends GLSurfaceView {
 
     public OrientationView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        setEGLContextClientVersion(2);
-        setEGLConfigChooser(8, 8, 8, 8, 16, 0);
-        setRenderer(new Renderer());
+        if (!isInEditMode()) {
+            setEGLContextClientVersion(2);
+            setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+            setRenderer(new Renderer());
 
-        sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-        phoneOrientationListener = new PhoneOrientationListener();
+            sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+            orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+            phoneOrientationListener = new PhoneOrientationListener();
+        } else {
+            sensorManager = null;
+            orientationSensor = null;
+            phoneOrientationListener = null;
+        }
     }
 
     /**

@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">Daydream Controller Sample</string>
+  <string name="no_status">NO STATUS</string>
+  <string name="label_api_status">API Status:</string>
+  <string name="label_controller_connection">Controller Connection:</string>
+  <string name="label_orientation">Orientation:</string>
+  <string name="label_touchpad">Touchpad:</string>
+  <string name="label_buttons">Buttons:</string>
 </resources>
