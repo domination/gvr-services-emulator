@@ -6,7 +6,7 @@ include ':libraries:base'
 include ':libraries:common'
 include ':libraries:controller'
 
-include ':samples:controllerclient'
+include ':samples:sdk-controllerclient'
 
 include ':services:gvr-emulator'
 

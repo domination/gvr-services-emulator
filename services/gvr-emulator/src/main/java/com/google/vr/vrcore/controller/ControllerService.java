@@ -19,6 +19,7 @@ import com.google.vr.vrcore.controller.api.IControllerService;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -49,12 +50,6 @@ public class ControllerService extends Service {
             public int initialize(int targetApiVersion) throws RemoteException {
                 Log.d("ControllerService", "initialize(" + targetApiVersion + ")");
                 return ControllerInitResults.SUCCESS;
-            }
-
-            @Override
-            public int getApiVersion() throws RemoteException {
-                Log.d("ControllerService", "getApiVersion");
-                return 2;
             }
 
             @Override
@@ -170,7 +165,7 @@ public class ControllerService extends Service {
     }
 
     private String getKeyUid(String key) {
-        return String.format("%d:%d:%s", new Object[]{Integer.valueOf(Binder.getCallingUid()), Integer.valueOf(Binder.getCallingPid()), key});
+        return String.format(Locale.US, "%d:%d:%s", Binder.getCallingUid(), Binder.getCallingPid(), key);
     }
 
     private void ensureLooper() {
