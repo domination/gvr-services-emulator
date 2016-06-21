@@ -14,6 +14,7 @@ import com.google.vr.gvr.io.proto.nano.Protos;
 import com.google.vr.vrcore.controller.BaseController;
 import com.google.vr.vrcore.controller.api.ControllerStates;
 
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
@@ -25,12 +26,18 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ClosedChannelException;
+import java.nio.channels.DatagramChannel;
+import java.nio.channels.Pipe;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.spi.AbstractSelectableChannel;
+import java.nio.channels.spi.AbstractSelector;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
@@ -103,8 +110,9 @@ class SocketEx extends Socket {
 class SelectionKeyEx extends SelectionKey {
 
     private SocketChannel socketChannel;
-    public SelectionKeyEx(SocketChannel socketChannel) {
-        this.socketChannel = socketChannel;
+
+    public SelectionKeyEx(SelectableChannel socketChannel) {
+        this.socketChannel = (SocketChannel) socketChannel;
     }
 
     @Override
@@ -152,16 +160,119 @@ class SelectionKeyEx extends SelectionKey {
     }
 }
 
-class SocketChannelEx extends SocketChannel {
+class SelectorEx extends AbstractSelector {
 
-    SocketEx socketEx = null;
-    /**
-     * Constructs a new {@code SocketChannel}.
-     *
-     * @param selectorProvider an instance of SelectorProvider.
-     */
+    public static Selector open() throws IOException {
+        //return SelectorProvider.provider().openSelector();
+        return SelectorProviderImplEx.provider().openSelector();
+    }
+
+    protected SelectorEx(SelectorProvider selectorProvider) {
+        super(selectorProvider);
+        keys = new HashSet<SelectionKey>();
+    }
+
+    @Override
+    protected void implCloseSelector() throws IOException {
+        Log.w("SelectorEx", "implCloseSelector");
+    }
+
+    @Override
+    protected SelectionKey register(AbstractSelectableChannel channel, int operations, Object attachment) {
+        //Log.w("SelectorEx", "register");
+        //return null;
+        SelectionKey key = new SelectionKeyEx(channel);
+        keys.add(key);
+        return key;
+    }
+
+    @Override
+    public Set<SelectionKey> keys() {
+        Log.w("SelectorEx", "keys");
+        return null;
+    }
+
+    @Override
+    public int select() throws IOException {
+        Log.w("SelectorEx", "select 1");
+        return 0;
+    }
+
+    @Override
+    public int select(long timeout) throws IOException {
+        //Log.w("SelectorEx", "select 2");
+        return 0;
+    }
+
+    private HashSet<SelectionKey> keys;
+
+    @Override
+    public Set<SelectionKey> selectedKeys() {
+        //Log.w("SelectorEx", "selectedKeys");
+        return new HashSet<SelectionKey>(keys);
+    }
+
+    @Override
+    public int selectNow() throws IOException {
+        Log.w("SelectorEx", "selectNow");
+        return 0;
+    }
+
+    @Override
+    public Selector wakeup() {
+        Log.w("SelectorEx", "wakeup");
+        return null;
+    }
+}
+
+class SelectorProviderImplEx extends SelectorProvider {
+
+    @Override
+    public DatagramChannel openDatagramChannel() throws IOException {
+        Log.w("SelectorProviderImplEx", "openDatagramChannel");
+        return null;
+    }
+
+    @Override
+    public Pipe openPipe() throws IOException {
+        Log.w("SelectorProviderImplEx", "openPipe");
+        return null;
+    }
+
+    @Override
+    public AbstractSelector openSelector() throws IOException {
+        //Log.w("SelectorProviderImplEx", "openSelector");
+        //return null;
+        return new SelectorEx(this);
+    }
+
+    @Override
+    public ServerSocketChannel openServerSocketChannel() throws IOException {
+        Log.w("SelectorProviderImplEx", "openServerSocketChannel");
+        return null;
+    }
+
+    @Override
+    public SocketChannel openSocketChannel() throws IOException {
+        Log.w("SelectorProviderImplEx", "openSocketChannel");
+        return null;
+    }
+
+    private static SelectorProvider provider;
+
+    synchronized public static SelectorProvider provider() {
+        provider = new SelectorProviderImplEx();
+        return provider;
+    }
+}
+
+final class SocketChannelEx extends SocketChannel {
+
+    private SocketEx socketEx = null;
+
     protected SocketChannelEx(SelectorProvider selectorProvider) {
         super(selectorProvider);
+        this.fd = new FileDescriptor();
     }
 
     public static SocketChannelEx open() {
@@ -180,6 +291,7 @@ class SocketChannelEx extends SocketChannel {
 
     @Override
     public boolean isConnectionPending() {
+        Log.w("SocketChannelEx", "isConnectionPending");
         return false;
     }
 
@@ -202,16 +314,17 @@ class SocketChannelEx extends SocketChannel {
 
     @Override
     public boolean finishConnect() throws IOException {
+        Log.w("SocketChannelEx", "finishConnect");
         return true;
     }
 
-    ReadableByteChannel readChannel = null;
+    private ReadableByteChannel readChannel = null;
+
     @Override
     public int read(ByteBuffer target) throws IOException {
         if (readChannel == null) {
             readChannel = Channels.newChannel(this.socketEx.getInputStream());
         }
-        //Log.w("SocketChannelEx", "read 1");
         return readChannel.read(target);
     }
 
@@ -223,11 +336,13 @@ class SocketChannelEx extends SocketChannel {
 
     @Override
     public int write(ByteBuffer source) throws IOException {
+        Log.w("SocketChannelEx", "write 1");
         return 0;
     }
 
     @Override
     public long write(ByteBuffer[] sources, int offset, int length) throws IOException {
+        Log.w("SocketChannelEx", "write 2");
         return 0;
     }
 
@@ -241,6 +356,12 @@ class SocketChannelEx extends SocketChannel {
     protected void implConfigureBlocking(boolean blocking) throws IOException {
         Log.w("SocketChannelEx", "implConfigureBlocking");
     }
+
+    private FileDescriptor fd;
+
+    public FileDescriptor getFD() {
+        return this.fd;
+    } //interface java.nio.FileDescriptorChannel
 }
 
 public class Controller extends BaseController {
@@ -344,7 +465,7 @@ public class Controller extends BaseController {
     @Override
     public boolean tryConnect() {
         try {
-            selector = Selector.open();
+            selector = this.tryBluetooth ? SelectorEx.open() : Selector.open();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -355,7 +476,7 @@ public class Controller extends BaseController {
             InetSocketAddress address = null;
             if (tryBluetooth) {
                 Set<BluetoothDevice> bluetoothDeviceIterator = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
-                for (BluetoothDevice device: bluetoothDeviceIterator) {
+                for (BluetoothDevice device : bluetoothDeviceIterator) {
                     address = new InetSocketAddressEx(device.getAddress(), UUID.fromString("ab001ac1-d740-4abb-a8e6-1cb5a49628fa"));
                     break;
                 }
@@ -394,8 +515,7 @@ public class Controller extends BaseController {
     @Override
     public boolean handle() {
         try {
-            if (!this.tryBluetooth)
-                selector.select(5000);
+            selector.select(5000);
         } catch (IOException e) {
             e.printStackTrace();
             setState(ControllerStates.DISCONNECTED);
@@ -403,29 +523,6 @@ public class Controller extends BaseController {
         }
 
         Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
-
-        if (this.tryBluetooth) {
-            keys = new Iterator<SelectionKey>() {
-
-                int i = 1;
-
-                @Override
-                public boolean hasNext() {
-                    return i > 0;
-                }
-
-                @Override
-                public SelectionKey next() {
-                    SelectionKey key = new SelectionKeyEx(channel);
-                    return key;
-                }
-
-                @Override
-                public void remove() {
-                    i--;
-                }
-            };
-        }
 
         while (keys.hasNext()) {
             SelectionKey key = keys.next();
