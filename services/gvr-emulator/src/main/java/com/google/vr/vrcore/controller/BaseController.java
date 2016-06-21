@@ -35,12 +35,18 @@ public abstract class BaseController implements Runnable {
     }
 
     public abstract boolean isAvailable();
+
     public abstract boolean isConnected();
+
     public abstract boolean tryConnect();
+
     public abstract boolean handle();
+
     public abstract void disconnect();
 
     public boolean isEnabled = true;
+
+    public ControllerService service;
 
     @Override
     public void run() {
@@ -49,14 +55,31 @@ public abstract class BaseController implements Runnable {
                 this.tryConnect();
             }
             if (!this.handle()) {
-                this.handler.postDelayed(this, 2000);
-                return;
+                if (isEnabled) {
+                    this.handler.postDelayed(this, 2000);
+                    return;
+                } else {
+                    this.handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            service.refreshMapListeners();
+                        }
+                    });
+                    return;
+                }
             }
             this.handler.post(this);
         } else {
             if (this.isConnected()) {
                 this.disconnect();
             }
+
+            this.handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    service.refreshMapListeners();
+                }
+            }, 2000);
         }
     }
 

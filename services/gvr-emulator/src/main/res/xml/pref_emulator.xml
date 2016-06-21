@@ -1,0 +1,51 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:persistent="false">
+
+    <PreferenceCategory android:title="@string/pref_header_connection">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/ic_network_wifi_black_24dp"
+            android:key="emulator_wifi"
+            android:summaryOff="@string/switch_disabled"
+            android:summaryOn="@string/switch_enabled"
+            android:title="@string/pref_header_wifi" />
+        <SwitchPreference
+            android:icon="@drawable/ic_bluetooth_black_24dp"
+            android:key="emulator_bluetooth"
+            android:summaryOff="@string/switch_disabled"
+            android:summaryOn="@string/switch_enabled"
+            android:title="@string/pref_header_bluetooth" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:dependency="emulator_wifi"
+        android:shouldDisableView="true"
+        android:title="@string/pref_header_wifi">
+        <EditTextPreference
+            android:defaultValue="@string/pref_default_ip_address"
+            android:digits="0123456789."
+            android:inputType="number|numberDecimal"
+            android:key="emulator_ip_address"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_ip_address" />
+
+        <EditTextPreference
+            android:defaultValue="@string/pref_default_port_number"
+            android:digits="0123456789"
+            android:inputType="number"
+            android:key="emulator_port_number"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_port_number" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:dependency="emulator_bluetooth"
+        android:shouldDisableView="true"
+        android:title="@string/pref_header_bluetooth"></PreferenceCategory>
+
+
+</PreferenceScreen>

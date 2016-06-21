@@ -8,9 +8,9 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.google.vr.vrcore.controller.api.ControllerInitResults;
 import com.google.vr.vrcore.controller.api.ControllerServiceConsts;
 import com.google.vr.vrcore.controller.api.ControllerStates;
 import com.google.vr.vrcore.controller.api.IControllerListener;
@@ -98,7 +98,17 @@ public class ControllerService extends Service {
             this.handler = new Handler(this.handlerThread.getLooper());
         }
 
-        this.mapControllerProviders.put("Emulator", new com.google.vr.vrcore.controller.emulator.Controller(this.handler, getApplicationContext()));
+        boolean isWiFi = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext()).getBoolean("emulator_wifi", true);
+        boolean isBluetooth = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext()).getBoolean("emulator_bluetooth", true);
+
+        if (isWiFi) {
+            this.mapControllerProviders.put("EmulatorWiFi", new com.google.vr.vrcore.controller.emulator.Controller(this.handler, getApplicationContext()));
+        }
+        if (isBluetooth) {
+            com.google.vr.vrcore.controller.emulator.Controller emulator = new com.google.vr.vrcore.controller.emulator.Controller(this.handler, getApplicationContext());
+            emulator.tryBluetooth = true;
+            this.mapControllerProviders.put("EmulatorBluetooth", emulator);
+        }
     }
 
     @Override
@@ -192,6 +202,12 @@ public class ControllerService extends Service {
         Log.d("ControllerService", "registerListener(" + controllerId + ", " + key + ", " + listener.getClass().toString() + ")");
         try {
             this.mapListeners.put(key, new RegisteredControllerListener(controllerId, listener));
+
+            Iterator itControllerProviders = this.mapControllerProviders.entrySet().iterator();
+            while (itControllerProviders.hasNext()) {
+                ((BaseController) ((Map.Entry) itControllerProviders.next()).getValue()).isEnabled = true;
+            }
+
             refreshMapListeners();
         } catch (RemoteException e) {
             Log.d(ControllerService.class.getSimpleName(), "Attempted to register a dead listener, ID " + (key.length() != 0 ? key : ""));
@@ -208,17 +224,43 @@ public class ControllerService extends Service {
                     continue;
                 }
 
-                Iterator itControllerProviders = this.mapControllerProviders.entrySet().iterator();
-                while (itControllerProviders.hasNext()) {
-                    controller = (BaseController) ((Map.Entry) itControllerProviders.next()).getValue();
-                    controller.isEnabled = true;
-                    if (controller.isAvailable()) {
-                        controller.setControllerListener(registeredControllerListener);
-                        break;
+                controller = null;
+
+                synchronized (this.mapControllerProviders) {
+                    Iterator itControllerProviders = this.mapControllerProviders.entrySet().iterator();
+                    while (itControllerProviders.hasNext()) {
+                        BaseController _controller = (BaseController) ((Map.Entry) itControllerProviders.next()).getValue();
+                        if (_controller.isAvailable()) {
+                            _controller.isEnabled = true;
+                            _controller.setControllerListener(registeredControllerListener);
+                            _controller.service = this;
+                            controller = _controller;
+                            break;
+                        }
                     }
                 }
-                this.handler.post(controller);
             }
+        }
+
+        if (controller != null) {
+            this.handler.post(controller);
+        } else {
+            synchronized (this.mapControllerProviders) {
+
+                if (this.mapControllerProviders.size() == 0) return;
+
+                Iterator itControllerProviders = this.mapControllerProviders.entrySet().iterator();
+                while (itControllerProviders.hasNext()) {
+                    ((BaseController) ((Map.Entry) itControllerProviders.next()).getValue()).isEnabled = true;
+                }
+            }
+            this.handler.postDelayed(new Runnable() {
+                @Override
+                public final void run() {
+                    Log.w("registerListener", "empty");
+                    refreshMapListeners();
+                }
+            }, 2000);
         }
     }
 }

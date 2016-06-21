@@ -74,6 +74,7 @@ class SocketEx extends Socket {
     @Override
     public void connect(SocketAddress remoteAddr) throws IOException {
         InetSocketAddressEx addressEx = (InetSocketAddressEx) remoteAddr;
+        if (addressEx == null) return;
         BluetoothDevice device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(addressEx.getHostName());
         this.bluetoothSocket = device.createRfcommSocketToServiceRecord(addressEx.getUUID());
 
@@ -83,20 +84,22 @@ class SocketEx extends Socket {
             try {
                 this.bluetoothSocket.close();
             } catch (IOException close) {
-                Log.d("CONNECTTHREAD", "Could not close connection:" + e.toString());
-                //return false;
+                Log.d("SocketEx::connect", "Could not close connection:" + e.toString());
             }
+            throw new ConnectException();
         }
     }
 
     @Override
     public synchronized void close() throws IOException {
         //super.close();
-        this.bluetoothSocket.close();
+        if (this.bluetoothSocket != null)
+            this.bluetoothSocket.close();
     }
 
     @Override
     public boolean isConnected() {
+        if (this.bluetoothSocket == null) return false;
         return this.bluetoothSocket.isConnected();
     }
 
@@ -118,6 +121,11 @@ class SelectionKeyEx extends SelectionKey {
     @Override
     public void cancel() {
         Log.w("SelectionKeyEx", "cancel");
+        try {
+            this.socketChannel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -141,7 +149,8 @@ class SelectionKeyEx extends SelectionKey {
     @Override
     public boolean isValid() {
         //Log.w("SelectionKeyEx", "isValid");
-        return true;
+        //return true;
+        return this.socketChannel.isConnected();
     }
 
     @Override
@@ -447,6 +456,7 @@ public class Controller extends BaseController {
         if (!channel.isConnected() || event == null) {
             channel.close();
             setState(ControllerStates.DISCONNECTED);
+            isEnabled = false;
             Log.d("EmulatorClientSocket", "!channel.isConnected");
             return;
         }
@@ -454,12 +464,23 @@ public class Controller extends BaseController {
 
     @Override
     public boolean isAvailable() {
-        return true;
+        return isEnabled;
     }
 
     @Override
     public boolean isConnected() {
         return registeredControllerListener.currentState == ControllerStates.CONNECTED;
+    }
+
+    private static boolean setBluetooth(boolean enable) {
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        boolean isEnabled = bluetoothAdapter.isEnabled();
+        if (enable && !isEnabled) {
+            return bluetoothAdapter.enable();
+        } else if (!enable && isEnabled) {
+            return bluetoothAdapter.disable();
+        }
+        return true;
     }
 
     @Override
@@ -475,8 +496,11 @@ public class Controller extends BaseController {
         try {
             InetSocketAddress address = null;
             if (tryBluetooth) {
+                setBluetooth(true);
+
                 Set<BluetoothDevice> bluetoothDeviceIterator = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
                 for (BluetoothDevice device : bluetoothDeviceIterator) {
+                    Log.w("bluetooth", device.getAddress() + " " + device.getName());
                     address = new InetSocketAddressEx(device.getAddress(), UUID.fromString("ab001ac1-d740-4abb-a8e6-1cb5a49628fa"));
                     break;
                 }
@@ -497,6 +521,7 @@ public class Controller extends BaseController {
                 setState(ControllerStates.CONNECTED);
             }
         } catch (ConnectException e) {
+            isEnabled = false;
             e.printStackTrace();
             return false;
         } catch (ClosedChannelException e) {
@@ -510,7 +535,7 @@ public class Controller extends BaseController {
         return true;
     }
 
-    boolean tryBluetooth = true;
+    public boolean tryBluetooth = false;
 
     @Override
     public boolean handle() {
@@ -536,6 +561,7 @@ public class Controller extends BaseController {
                     setState(ControllerStates.CONNECTED);
                 }
             } catch (ConnectException e) {
+                isEnabled = false;
                 e.printStackTrace();
                 return false;
             } catch (IOException e) {
