@@ -1,5 +1,5 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:persistent="true">
+    android:persistent="false">
 
     <PreferenceCategory android:title="@string/pref_header_connection">
         <SwitchPreference
@@ -47,14 +47,9 @@
         android:dependency="emulator_bluetooth"
         android:shouldDisableView="true"
         android:title="@string/pref_category_title_bluetooth">
-        <EditTextPreference
+        <com.google.vr.vrcore.settings.helper.BluetoothDevicePreference
             android:defaultValue="@string/pref_default_bt_device"
-            android:digits="0123456789."
-            android:inputType="number|numberDecimal"
             android:key="emulator_bt_device"
-            android:maxLines="1"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
             android:title="@string/pref_title_bt_device" />
     </PreferenceCategory>
 

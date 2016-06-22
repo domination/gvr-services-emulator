@@ -75,6 +75,9 @@ class SocketEx extends Socket {
     public void connect(SocketAddress remoteAddr) throws IOException {
         InetSocketAddressEx addressEx = (InetSocketAddressEx) remoteAddr;
         if (addressEx == null) return;
+
+        BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+
         BluetoothDevice device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(addressEx.getHostName());
         this.bluetoothSocket = device.createRfcommSocketToServiceRecord(addressEx.getUUID());
 
@@ -92,7 +95,6 @@ class SocketEx extends Socket {
 
     @Override
     public synchronized void close() throws IOException {
-        //super.close();
         if (this.bluetoothSocket != null)
             this.bluetoothSocket.close();
     }
@@ -104,7 +106,6 @@ class SocketEx extends Socket {
 
     @Override
     public InputStream getInputStream() throws IOException {
-        //return super.getInputStream();
         return this.bluetoothSocket.getInputStream();
     }
 }
@@ -129,7 +130,6 @@ class SelectionKeyEx extends SelectionKey {
 
     @Override
     public SelectableChannel channel() {
-        //Log.w("SelectionKeyEx", "channel");
         return this.socketChannel;
     }
 
@@ -148,7 +148,6 @@ class SelectionKeyEx extends SelectionKey {
     @Override
     public boolean isValid() {
         //Log.w("SelectionKeyEx", "isValid");
-        //return true;
         return this.socketChannel.isConnected();
     }
 
@@ -188,7 +187,6 @@ class SelectorEx extends AbstractSelector {
     @Override
     protected SelectionKey register(AbstractSelectableChannel channel, int operations, Object attachment) {
         //Log.w("SelectorEx", "register");
-        //return null;
         SelectionKey key = new SelectionKeyEx(channel);
         keys.add(key);
         return key;
@@ -249,8 +247,6 @@ class SelectorProviderImplEx extends SelectorProvider {
 
     @Override
     public AbstractSelector openSelector() throws IOException {
-        //Log.w("SelectorProviderImplEx", "openSelector");
-        //return null;
         return new SelectorEx(this);
     }
 
@@ -306,7 +302,7 @@ final class SocketChannelEx extends SocketChannel {
     @Override
     public boolean connect(SocketAddress address) throws IOException {
         if (this.socketEx != null) {
-            this.socketEx.bluetoothSocket.close();
+            this.socketEx.close();
         }
         if (readChannel != null) {
             this.readChannel = null;
@@ -466,8 +462,12 @@ public class Controller extends BaseController {
         return registeredControllerListener.currentState == ControllerStates.CONNECTED;
     }
 
-    private boolean setBluetooth(boolean enable) {
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    private BluetoothAdapter bluetoothAdapter;
+
+    public boolean setBluetooth(boolean enable) {
+        this.tryBluetooth = enable;
+        this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter == null) return false;
         boolean isEnabled = bluetoothAdapter.isEnabled();
         if (enable && !isEnabled) {
             return bluetoothAdapter.enable();
@@ -492,7 +492,7 @@ public class Controller extends BaseController {
             if (tryBluetooth) {
                 setBluetooth(true);
 
-                Set<BluetoothDevice> bluetoothDeviceIterator = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
+                Set<BluetoothDevice> bluetoothDeviceIterator = this.bluetoothAdapter.getBondedDevices();
                 for (BluetoothDevice device : bluetoothDeviceIterator) {
                     Log.w("bluetooth", device.getAddress() + " " + device.getName());
                     address = new InetSocketAddressEx(device.getAddress(), UUID.fromString("ab001ac1-d740-4abb-a8e6-1cb5a49628fa"));
@@ -529,7 +529,7 @@ public class Controller extends BaseController {
         return true;
     }
 
-    public boolean tryBluetooth = false;
+    private boolean tryBluetooth = false;
 
     @Override
     public boolean handle() {

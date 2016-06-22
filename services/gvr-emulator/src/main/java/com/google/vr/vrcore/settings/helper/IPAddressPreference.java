@@ -94,7 +94,7 @@ public class IPAddressPreference extends EditTextPreference implements Preferenc
     }
 
     private String getIpAddress(String newValue) {
-        if (newValue.matches("^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$")) {
+        if (newValue != null && newValue.matches("^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$")) {
             String[] splits = newValue.split("\\.");
             String resultingTxt = "";
             for (int i = 0; i < splits.length; i++) {

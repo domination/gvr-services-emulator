@@ -106,8 +106,9 @@ public class ControllerService extends Service {
         }
         if (isBluetooth) {
             com.google.vr.vrcore.controller.emulator.Controller emulator = new com.google.vr.vrcore.controller.emulator.Controller(this.handler, getApplicationContext());
-            emulator.tryBluetooth = true;
-            this.mapControllerProviders.put("EmulatorBluetooth", emulator);
+            if (emulator.setBluetooth(true)) {
+                this.mapControllerProviders.put("EmulatorBluetooth", emulator);
+            }
         }
     }
 
