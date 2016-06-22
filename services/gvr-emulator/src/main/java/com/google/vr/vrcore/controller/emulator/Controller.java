@@ -162,20 +162,22 @@ public class Controller extends BaseController {
         }
 
         try {
+            channel = null;
+
             SocketAddress address = null;
             if (tryBluetooth) {
                 setBluetooth(true);
 
                 //Set<BluetoothDevice> bluetoothDeviceIterator = this.bluetoothAdapter.getBondedDevices();
                 //for (BluetoothDevice device : bluetoothDeviceIterator) {
-                //    Log.w("bluetooth", device.getAddress() + " " + device.getName());
+                //    Log.d("bluetooth", device.getAddress() + " " + device.getName());
                 //    address = new BluetoothSocketAddress(device.getAddress(), UUID.fromString("ab001ac1-d740-4abb-a8e6-1cb5a49628fa"));
                 //    break;
                 //}
                 String bt_address = PreferenceManager.getDefaultSharedPreferences(this.context).getString("emulator_bt_device", "");
                 address = new BluetoothSocketAddress(bt_address, UUID.fromString("ab001ac1-d740-4abb-a8e6-1cb5a49628fa"));
                 channel = BluetoothSocketChannel.open();
-                Log.w("tryConnect", "Device name: " + ((BluetoothSocketAddress) address).getRemoteDevice().getName());
+                Log.d("tryConnect", "Device name: " + ((BluetoothSocketAddress) address).getRemoteDevice().getName());
             } else {
                 String ip = PreferenceManager.getDefaultSharedPreferences(this.context).getString("emulator_ip_address", "192.168.1.101" /* default value pref_default_ip_address */);
                 String port = PreferenceManager.getDefaultSharedPreferences(this.context).getString("emulator_port_number", "7003" /* default value pref_default_port_number */);
@@ -193,7 +195,7 @@ public class Controller extends BaseController {
             }
         } catch (ConnectException e) {
             isEnabled = false;
-            e.printStackTrace();
+            //e.printStackTrace();
             return false;
         } catch (ClosedChannelException e) {
             e.printStackTrace();
@@ -227,7 +229,7 @@ public class Controller extends BaseController {
             if (!key.isValid()) continue;
 
             try {
-                //Log.w("handle", key.isConnectable() + " " + channel.isConnectionPending() + " " + channel.finishConnect());
+                //Log.d("handle", key.isConnectable() + " " + channel.isConnectionPending() + " " + channel.finishConnect());
                 if (key.isConnectable() && channel.isConnectionPending() && channel.finishConnect()) {
                     connect(key);
                     setState(ControllerStates.CONNECTED);

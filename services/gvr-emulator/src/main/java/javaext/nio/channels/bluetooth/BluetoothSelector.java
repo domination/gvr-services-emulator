@@ -27,12 +27,12 @@ public class BluetoothSelector extends AbstractSelector {
 
     @Override
     protected void implCloseSelector() throws IOException {
-        Log.w("BluetoothSelector", "implCloseSelector");
+        Log.d("BluetoothSelector", "implCloseSelector");
     }
 
     @Override
     protected SelectionKey register(AbstractSelectableChannel channel, int operations, Object attachment) {
-        Log.w("BluetoothSelector", "register");
+        Log.d("BluetoothSelector", "register");
         SelectionKey key = new BluetoothSelectionKey(channel);
         keys.add(key);
         return key;
@@ -40,37 +40,37 @@ public class BluetoothSelector extends AbstractSelector {
 
     @Override
     public Set<SelectionKey> keys() {
-        Log.w("BluetoothSelector", "keys");
+        Log.d("BluetoothSelector", "keys");
         return null;
     }
 
     @Override
     public int select() throws IOException {
-        Log.w("BluetoothSelector", "select");
+        Log.d("BluetoothSelector", "select");
         return 0;
     }
 
     @Override
     public int select(long timeout) throws IOException {
-        //Log.w("BluetoothSelector", "select");
+        //Log.d("BluetoothSelector", "select");
         return 0;
     }
 
     @Override
     public Set<SelectionKey> selectedKeys() {
-        //Log.w("BluetoothSelector", "selectedKeys");
+        //Log.d("BluetoothSelector", "selectedKeys");
         return new HashSet<>(this.keys);
     }
 
     @Override
     public int selectNow() throws IOException {
-        Log.w("BluetoothSelector", "selectNow");
+        Log.d("BluetoothSelector", "selectNow");
         return 0;
     }
 
     @Override
     public Selector wakeup() {
-        Log.w("BluetoothSelector", "wakeup");
+        Log.d("BluetoothSelector", "wakeup");
         return null;
     }
 }

@@ -18,7 +18,7 @@ public class BluetoothSelectionKey extends SelectionKey {
 
     @Override
     public void cancel() {
-        Log.w("BluetoothSelectionKey", "cancel");
+        Log.d("BluetoothSelectionKey", "cancel");
         try {
             this.channel.close();
         } catch (IOException e) {
@@ -28,31 +28,31 @@ public class BluetoothSelectionKey extends SelectionKey {
 
     @Override
     public SelectableChannel channel() {
-        //Log.w("BluetoothSelectionKey", "channel");
+        //Log.d("BluetoothSelectionKey", "channel");
         return this.channel;
     }
 
     @Override
     public int interestOps() {
-        Log.w("BluetoothSelectionKey", "interestOps");
+        Log.d("BluetoothSelectionKey", "interestOps");
         return 0;
     }
 
     @Override
     public SelectionKey interestOps(int operations) {
-        Log.w("BluetoothSelectionKey", "interestOps");
+        Log.d("BluetoothSelectionKey", "interestOps");
         return null;
     }
 
     @Override
     public boolean isValid() {
-        //Log.w("BluetoothSelectionKey", "isValid");
+        //Log.d("BluetoothSelectionKey", "isValid");
         return this.channel.isConnected();
     }
 
     @Override
     public int readyOps() {
-        //Log.w("BluetoothSelectionKey", "readyOps");
+        //Log.d("BluetoothSelectionKey", "readyOps");
         if (channel.isConnected()) {
             return OP_READ;
         }
@@ -61,7 +61,7 @@ public class BluetoothSelectionKey extends SelectionKey {
 
     @Override
     public Selector selector() {
-        Log.w("BluetoothSelectionKey", "selector");
+        Log.d("BluetoothSelectionKey", "selector");
         return null;
     }
 }

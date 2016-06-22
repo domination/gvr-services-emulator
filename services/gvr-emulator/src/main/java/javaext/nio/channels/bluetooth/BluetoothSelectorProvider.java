@@ -21,31 +21,31 @@ public class BluetoothSelectorProvider extends SelectorProvider {
 
     @Override
     public DatagramChannel openDatagramChannel() throws IOException {
-        Log.w("BluetoothSelectorProvider", "openDatagramChannel");
+        Log.d("BluetoothSelectorProvider", "openDatagramChannel");
         return null;
     }
 
     @Override
     public Pipe openPipe() throws IOException {
-        Log.w("BluetoothSelectorProvider", "openPipe");
+        Log.d("BluetoothSelectorProvider", "openPipe");
         return null;
     }
 
     @Override
     public AbstractSelector openSelector() throws IOException {
-        Log.w("BluetoothSelectorProvider", "openSelector");
+        Log.d("BluetoothSelectorProvider", "openSelector");
         return new BluetoothSelector(this);
     }
 
     @Override
     public ServerSocketChannel openServerSocketChannel() throws IOException {
-        Log.w("BluetoothSelectorProvider", "openServerSocketChannel");
+        Log.d("BluetoothSelectorProvider", "openServerSocketChannel");
         return null;
     }
 
     @Override
     public SocketChannel openSocketChannel() throws IOException {
-        Log.w("BluetoothSelectorProvider", "openSocketChannel");
+        Log.d("BluetoothSelectorProvider", "openSocketChannel");
         return null;
     }
 }

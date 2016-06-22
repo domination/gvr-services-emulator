@@ -15,9 +15,9 @@ public class VrSettingsActivity extends PreferenceActivity {
 //    @Override
 //    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 //        super.onActivityResult(requestCode, resultCode, data);
-//        Log.w("onActivityResult", "requestCode: " + requestCode + ", resultCode: " + resultCode);
+//        Log.d("onActivityResult", "requestCode: " + requestCode + ", resultCode: " + resultCode);
 //        if (data != null) {
-//            Log.w("onActivityResult", data.toString());
+//            Log.d("onActivityResult", data.toString());
 //        }
 //    }
 

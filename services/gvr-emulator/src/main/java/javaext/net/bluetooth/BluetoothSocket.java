@@ -64,8 +64,8 @@ public class BluetoothSocket extends Socket {
                 //cacheLocalAddress();
             } catch (IOException e) {
                 this.close();
-                Log.w("BluetoothSocket", "connect");
-                e.printStackTrace();
+                //Log.d("BluetoothSocket", "connect");
+                //e.printStackTrace();
                 throw new ConnectException();
             }
         }

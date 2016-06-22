@@ -256,7 +256,6 @@ public class ControllerService extends Service {
             this.handler.postDelayed(new Runnable() {
                 @Override
                 public final void run() {
-                    Log.w("registerListener", "empty");
                     refreshMapListeners();
                 }
             }, 2000);

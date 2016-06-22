@@ -37,12 +37,12 @@ public class IPAddressPreference extends EditTextPreference implements Preferenc
                         new InputFilter() {
                             @Override
                             public CharSequence filter(CharSequence source, int start, int end, android.text.Spanned dest, int dstart, int dend) {
-                                Log.w("filter", "'" + source + "' start: " + start + ", end: " + end + ", dest: " + dest.toString() + ", dstart:" + dstart + ", dend: " + dend);
+                                Log.d("filter", "'" + source + "' start: " + start + ", end: " + end + ", dest: " + dest.toString() + ", dstart:" + dstart + ", dend: " + dend);
                                 if (end > start) {
                                     String destTxt = dest.toString();
                                     String resultingTxt = destTxt.substring(0, dstart) + source.subSequence(start, end) + destTxt.substring(dend);
                                     if (!resultingTxt.matches("^\\d{1,3}(\\.(\\d{1,3}(\\.(\\d{1,3}(\\.(\\d{1,3})?)?)?)?)?)?")) {
-                                        Log.w("filter", "!match");
+                                        Log.d("filter", "!match");
                                         resultingTxt = destTxt.substring(0, dstart) + "." + destTxt.substring(dend);
                                         if (!resultingTxt.matches("^\\d{1,3}(\\.(\\d{1,3}(\\.(\\d{1,3}(\\.(\\d{1,3})?)?)?)?)?)?")) {
                                             if (destTxt.equals("")) {
@@ -56,7 +56,7 @@ public class IPAddressPreference extends EditTextPreference implements Preferenc
                                         String[] splits = resultingTxt.split("\\.");
                                         for (int i = 0; i < splits.length; i++) {
                                             if (Integer.valueOf(splits[i]) > 255) {
-                                                Log.w("filter", "bigger > 255");
+                                                Log.d("filter", "bigger > 255");
                                                 if (resultingTxt.matches("^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$")) {
                                                     return "";
                                                 }

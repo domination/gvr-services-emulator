@@ -91,7 +91,7 @@ public class BluetoothDevicePreference extends ListPreference implements DialogI
     @Override
     protected String getPersistedString(String defaultReturnValue) {
         String p = super.getPersistedString(defaultReturnValue);
-        Log.w("getPersistedString", "defaultReturnValue - " + p);
+        Log.d("getPersistedString", "defaultReturnValue - " + p);
         return p;
     }
 

@@ -9,7 +9,7 @@ public class VrCoreListenerService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.w("VrCoreListenerService", "onBind " + intent.getAction());
+        Log.d("VrCoreListenerService", "onBind " + intent.getAction());
         return null;
     }
 }

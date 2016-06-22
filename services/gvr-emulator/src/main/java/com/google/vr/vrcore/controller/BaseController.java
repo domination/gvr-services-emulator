@@ -72,7 +72,7 @@ public abstract class BaseController implements Runnable {
                 this.handler.post(this);
             } catch (IllegalStateException e) {
                 e.printStackTrace();
-                Log.w("basecontrolller", "illegal");
+                Log.d("basecontrolller", "illegal");
             }
         } else {
             if (this.isConnected()) {
