@@ -13,7 +13,6 @@
         android:icon="@drawable/ic_play_circle_outline_black_24dp"
         android:title="@string/app_controller_client_title">
         <intent
-            android:action="android.intent.action.MAIN"
             android:targetClass="@string/app_controller_client_class"
             android:targetPackage="@string/app_controller_client_package" />
     </header>

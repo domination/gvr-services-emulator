@@ -54,7 +54,7 @@ public abstract class BaseController implements Runnable {
             if (!this.isConnected()) {
                 this.tryConnect();
             }
-            if (!this.handle()) {
+            if (isEnabled && !this.handle()) {
                 if (isEnabled) {
                     this.handler.postDelayed(this, 2000);
                     return;
@@ -68,7 +68,12 @@ public abstract class BaseController implements Runnable {
                     return;
                 }
             }
-            this.handler.post(this);
+            try {
+                this.handler.post(this);
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+                Log.w("basecontrolller", "illegal");
+            }
         } else {
             if (this.isConnected()) {
                 this.disconnect();
