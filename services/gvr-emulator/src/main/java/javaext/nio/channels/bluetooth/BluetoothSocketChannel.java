@@ -1,5 +1,7 @@
 package javaext.nio.channels.bluetooth;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -60,16 +62,19 @@ public class BluetoothSocketChannel extends SocketChannel /* implements java.nio
 
     @Override
     public long read(ByteBuffer[] targets, int offset, int length) throws IOException {
+        Log.d("BluetoothSocketChannel", "read 2");
         return 0;
     }
 
     @Override
     public int write(ByteBuffer source) throws IOException {
+        Log.d("BluetoothSocketChannel", "write 1");
         return 0;
     }
 
     @Override
     public long write(ByteBuffer[] sources, int offset, int length) throws IOException {
+        Log.d("BluetoothSocketChannel", "write 2");
         return 0;
     }
 
@@ -81,6 +86,6 @@ public class BluetoothSocketChannel extends SocketChannel /* implements java.nio
 
     @Override
     protected void implConfigureBlocking(boolean blocking) throws IOException {
-
+        //Log.d("BluetoothSocketChannel", "implConfigureBlocking");
     }
 }

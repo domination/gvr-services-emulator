@@ -21,7 +21,7 @@ protobuf {
                 option 'ignore_services=false'
                 option 'enum_style=java'
                 option 'optional_field_style=accessors'
-                option 'parcelable_messages=true'
+                //option 'parcelable_messages=true' //PhoneEvent extends com.google.protobuf.nano.android.ParcelableMessageNano
             }
         }
     }
@@ -40,7 +40,6 @@ android {
 }
 
 dependencies {
-    compile 'com.google.protobuf.nano:protobuf-javanano:3.0.0-alpha-4' //https://github.com/google/protobuf/issues/956
     protobuf files('proto/Protos.proto')
     compile project(':libraries-common')
 }

@@ -14,10 +14,12 @@ import java.util.Set;
 public class BluetoothSelector extends AbstractSelector {
 
     private HashSet<SelectionKey> keys;
+    private HashSet<SelectionKey> selectedKeys;
 
     protected BluetoothSelector(SelectorProvider selectorProvider) {
         super(selectorProvider);
-        keys = new HashSet<>();
+        this.keys = new HashSet<>();
+        this.selectedKeys = new HashSet<>();
     }
 
     public static Selector open() throws IOException {
@@ -34,14 +36,15 @@ public class BluetoothSelector extends AbstractSelector {
     protected SelectionKey register(AbstractSelectableChannel channel, int operations, Object attachment) {
         Log.d("BluetoothSelector", "register");
         SelectionKey key = new BluetoothSelectionKey(channel);
-        keys.add(key);
+        this.keys.add(key);
+        this.selectedKeys.add(key); //temporary fix - implement methods select
         return key;
     }
 
     @Override
     public Set<SelectionKey> keys() {
         Log.d("BluetoothSelector", "keys");
-        return null;
+        return this.keys;
     }
 
     @Override
@@ -52,14 +55,17 @@ public class BluetoothSelector extends AbstractSelector {
 
     @Override
     public int select(long timeout) throws IOException {
+        //TODO use timeout and check for sockets
         //Log.d("BluetoothSelector", "select");
-        return 0;
+        //this.selectedKeys.clear();
+        //this.selectedKeys.addAll(keys);
+        return this.selectedKeys.size();
     }
 
     @Override
     public Set<SelectionKey> selectedKeys() {
         //Log.d("BluetoothSelector", "selectedKeys");
-        return new HashSet<>(this.keys);
+        return this.selectedKeys;
     }
 
     @Override

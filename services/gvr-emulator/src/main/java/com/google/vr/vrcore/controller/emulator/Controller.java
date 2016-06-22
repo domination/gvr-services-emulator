@@ -8,7 +8,9 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.google.vr.gvr.io.proto.nano.Protos;
+import com.google.protobuf.nano.CodedInputByteBufferNano;
+import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
+import com.google.vr.gvr.io.proto.nano.Protos.PhoneEvent;
 import com.google.vr.vrcore.controller.BaseController;
 import com.google.vr.vrcore.controller.api.ControllerStates;
 
@@ -22,13 +24,11 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
 import java.util.UUID;
 
 import javaext.net.bluetooth.BluetoothSocketAddress;
 import javaext.nio.channels.bluetooth.BluetoothSelector;
 import javaext.nio.channels.bluetooth.BluetoothSocketChannel;
-
 
 public class Controller extends BaseController {
 
@@ -61,47 +61,77 @@ public class Controller extends BaseController {
 
     private static int blockingRead(SocketChannel socketChannel, ByteBuffer buffer) throws IOException {
         int totalRead = 0;
-        int wantToRead = buffer.limit() - buffer.position();
+        int wantToRead = buffer.remaining(); //buffer.limit() - buffer.position();
         while (socketChannel.isConnected() && totalRead < wantToRead && totalRead >= 0) {
             totalRead += socketChannel.read(buffer);
         }
         return totalRead;
     }
 
-    private static Protos.PhoneEvent readFromChannel(SocketChannel channel) throws IOException {
-        ByteBuffer header = ByteBuffer.allocate(4);
-        if (blockingRead(channel, header) < 4) {
+    private ByteBuffer lengthBytes = ByteBuffer.allocate(4); // 4 bytes for integer - length of msg
+    private ByteBuffer protoBytes = ByteBuffer.allocate(100); // it should be enough
+    private CodedInputByteBufferNano e = null;
+
+    private PhoneEvent readFromChannel(SocketChannel channel) throws IOException {
+        lengthBytes.rewind(); //ByteBuffer lengthBytes = ByteBuffer.allocate(4);
+        if (blockingRead(channel, lengthBytes) < 4) {
             return null;
         }
-        header.rewind();
-        int length = header.getInt();
-        ByteBuffer protoBytes = ByteBuffer.allocate(length);
+        lengthBytes.rewind();
+        int length = lengthBytes.getInt();
+        protoBytes.rewind().limit(length); //ByteBuffer protoBytes = ByteBuffer.allocate(length);
         if (blockingRead(channel, protoBytes) >= length) {
-            return Protos.PhoneEvent.mergeFrom(new Protos.PhoneEvent(), protoBytes.array(), protoBytes.arrayOffset(), length);
+            //return PhoneEvent.mergeFrom(phoneEvent.clear(), protoBytes.array(), protoBytes.arrayOffset(), length);
+            protoBytes.rewind();
+            try {
+                int newBufferSize = protoBytes.arrayOffset() + length;
+                if (e == null) {
+                    e = CodedInputByteBufferNano.newInstance(protoBytes.array(), protoBytes.arrayOffset(), 100);//length);
+                }// else {
+                e.rewindToPosition(0);
+
+                e.popLimit(100);
+                e.pushLimit(newBufferSize);
+                //}
+
+                phoneEvent.clear().mergeFrom(e);
+                e.checkLastTagWas(0);
+                return phoneEvent;
+            } catch (InvalidProtocolBufferNanoException var5) {
+                var5.printStackTrace();
+                throw var5;
+            } catch (IOException var6) {
+                var6.printStackTrace();
+                throw new RuntimeException("Reading from a byte array threw an IOException (should never happen).");
+            }
         }
         return null;
     }
 
-    private void handleClient(SocketChannel channel) throws IOException {
-        Protos.PhoneEvent event;
+    protected PhoneEvent phoneEvent;
 
+    private void handleClient(SocketChannel channel) throws IOException {
         if (!channel.isConnected()) {
             return;
         }
 
+        if (phoneEvent == null) {
+            phoneEvent = new PhoneEvent();
+        }
+
         try {
-            event = readFromChannel(channel);
+            phoneEvent = readFromChannel(channel);
         } catch (ClosedByInterruptException ce) {
             ce.printStackTrace();
             return;
 
         } catch (Exception ce) {
-            event = null;
+            phoneEvent = null;
             ce.printStackTrace();
         }
 
         try {
-            OnPhoneEvent(event);
+            OnPhoneEvent(phoneEvent);
         } catch (DeadObjectException ce) {
             ce.printStackTrace();
             channel.close();
@@ -110,11 +140,11 @@ public class Controller extends BaseController {
             ce.printStackTrace();
         }
 
-        if (!channel.isConnected() || event == null) {
-            channel.close();
+        if (!channel.isConnected() || phoneEvent == null) {
             setState(ControllerStates.DISCONNECTED);
             isEnabled = false;
-            Log.d("EmulatorClientSocket", "!channel.isConnected");
+            channel.close();
+            Log.d("Controller", "handleClient :: !channel.isConnected");
         }
     }
 
@@ -220,11 +250,7 @@ public class Controller extends BaseController {
             return false;
         }
 
-        Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
-
-        while (keys.hasNext()) {
-            SelectionKey key = keys.next();
-            keys.remove();
+        for (SelectionKey key : selector.selectedKeys()) {
 
             if (!key.isValid()) continue;
 

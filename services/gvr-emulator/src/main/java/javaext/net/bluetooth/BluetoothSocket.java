@@ -2,7 +2,6 @@ package javaext.net.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -96,13 +95,7 @@ public class BluetoothSocket extends Socket {
     @Override
     public InputStream getInputStream() throws IOException {
         checkOpenAndCreate(false, null);
-//        if (isInputShutdown()) {
-//            throw new SocketException("Socket input is shutdown");
-//        }
-//        return impl.getInputStream();
-        if (this.bluetoothSocket != null)
-            return this.bluetoothSocket.getInputStream();
-        return null;
+        return this.bluetoothSocket.getInputStream();
     }
 
     private void checkOpenAndCreate(boolean create, BluetoothSocketAddress bluetoothSocketAddress) throws SocketException {
@@ -132,6 +125,7 @@ public class BluetoothSocket extends Socket {
                 BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
 
                 BluetoothDevice device = bluetoothSocketAddress.getRemoteDevice();
+                //if no device should throw
                 this.bluetoothSocket = device.createRfcommSocketToServiceRecord(bluetoothSocketAddress.getUUID());
 
             } catch (SocketException e) {

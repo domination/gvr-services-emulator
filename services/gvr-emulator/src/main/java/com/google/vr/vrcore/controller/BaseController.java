@@ -102,12 +102,16 @@ public abstract class BaseController implements Runnable {
         return this.registeredControllerListener.setState(state);
     }
 
+    private ControllerTouchEvent controllerTouchEvent = new ControllerTouchEvent();
+    private ControllerGyroEvent controllerGyroEvent = new ControllerGyroEvent();
+    private ControllerAccelEvent controllerAccelEvent = new ControllerAccelEvent();
+    private ControllerOrientationEvent controllerOrientationEvent = new ControllerOrientationEvent();
+    private ControllerButtonEvent controllerButtonEvent = new ControllerButtonEvent();
+
     public void OnPhoneEvent(PhoneEvent event) throws RemoteException {
         if (event != null) {
-            int type = event.getType();
-            switch (type) {
+            switch (event.getType()) {
                 case PhoneEvent.Type.MOTION:
-                    ControllerTouchEvent eventM = new ControllerTouchEvent();
                     int action = ControllerTouchEvent.ACTION_NONE;
                     switch (event.motionEvent.getAction()) {
                         case 0:
@@ -122,56 +126,47 @@ public abstract class BaseController implements Runnable {
                         case 3:
                             action = ControllerTouchEvent.ACTION_CANCEL;
                             break;
-
-                        case 6:
-                        case 5:
-                        case 7:
-                        case 9:
-                        case 10:
+                        default:
                             Log.d("ControllerTouchEvent", "action = " + event.motionEvent.getAction());
                             break;
                     }
-                    eventM.action = action;
-                    eventM.fingerId = event.motionEvent.pointers[0].getId();
-                    eventM.x = event.motionEvent.pointers[0].getNormalizedX();
-                    eventM.y = event.motionEvent.pointers[0].getNormalizedY();
+                    controllerTouchEvent.action = action;
+                    controllerTouchEvent.fingerId = event.motionEvent.pointers[0].getId();
+                    controllerTouchEvent.x = event.motionEvent.pointers[0].getNormalizedX();
+                    controllerTouchEvent.y = event.motionEvent.pointers[0].getNormalizedY();
 
-                    eventM.timestampNanos = ((event.motionEvent.getAction() & 0xff/*ACTION_MASK*/) == 0) ? ((int) (event.motionEvent.getTimestamp() - lastDownTimeMS)) : 0;
-                    controllerListener.onControllerTouchEvent(eventM);
+                    controllerTouchEvent.timestampNanos = ((event.motionEvent.getAction() & 0xff/*ACTION_MASK*/) == 0) ? ((int) (event.motionEvent.getTimestamp() - lastDownTimeMS)) : 0;
+                    controllerListener.onControllerTouchEvent(controllerTouchEvent);
                     if ((event.motionEvent.getAction() & 0xff/*ACTION_MASK*/) != 0) {
                         lastDownTimeMS = event.motionEvent.getTimestamp();
                     }
                     break;
                 case PhoneEvent.Type.GYROSCOPE:
-                    ControllerGyroEvent eventG = new ControllerGyroEvent();
-                    eventG.x = event.gyroscopeEvent.getX();
-                    eventG.y = event.gyroscopeEvent.getY();
-                    eventG.z = event.gyroscopeEvent.getZ();
+                    controllerGyroEvent.x = event.gyroscopeEvent.getX();
+                    controllerGyroEvent.y = event.gyroscopeEvent.getY();
+                    controllerGyroEvent.z = event.gyroscopeEvent.getZ();
 
-                    eventG.timestampNanos = event.gyroscopeEvent.getTimestamp();
-                    controllerListener.onControllerGyroEvent(eventG); //probably not used
+                    controllerGyroEvent.timestampNanos = event.gyroscopeEvent.getTimestamp();
+                    controllerListener.onControllerGyroEvent(controllerGyroEvent); //probably not used
                     break;
                 case PhoneEvent.Type.ACCELEROMETER:
-                    ControllerAccelEvent eventA = new ControllerAccelEvent();
-                    eventA.x = event.accelerometerEvent.getX();
-                    eventA.y = event.accelerometerEvent.getY();
-                    eventA.z = -event.accelerometerEvent.getZ();
+                    controllerAccelEvent.x = event.accelerometerEvent.getX();
+                    controllerAccelEvent.y = event.accelerometerEvent.getY();
+                    controllerAccelEvent.z = -event.accelerometerEvent.getZ();
 
-                    eventA.timestampNanos = event.accelerometerEvent.getTimestamp();
-                    controllerListener.onControllerAccelEvent(eventA);  //probably not used
+                    controllerAccelEvent.timestampNanos = event.accelerometerEvent.getTimestamp();
+                    controllerListener.onControllerAccelEvent(controllerAccelEvent); //probably not used
                     break;
                 case PhoneEvent.Type.ORIENTATION:
-                    ControllerOrientationEvent eventO = new ControllerOrientationEvent();
-                    eventO.qx = -event.orientationEvent.getX();
-                    eventO.qy = -event.orientationEvent.getZ();
-                    eventO.qz = event.orientationEvent.getY();
-                    eventO.qw = event.orientationEvent.getW();
+                    controllerOrientationEvent.qx = -event.orientationEvent.getX();
+                    controllerOrientationEvent.qy = -event.orientationEvent.getZ();
+                    controllerOrientationEvent.qz = event.orientationEvent.getY();
+                    controllerOrientationEvent.qw = event.orientationEvent.getW();
 
-                    eventO.timestampNanos = event.orientationEvent.getTimestamp();
-                    controllerListener.onControllerOrientationEvent(eventO); //must be send
+                    controllerOrientationEvent.timestampNanos = event.orientationEvent.getTimestamp();
+                    controllerListener.onControllerOrientationEvent(controllerOrientationEvent); //must be send
                     break;
                 case PhoneEvent.Type.KEY:
-                    ControllerButtonEvent eventB = new ControllerButtonEvent();
                     int button = 0;
                     switch (event.keyEvent.getCode()) {
                         case ButtonCode.kNone:
@@ -193,12 +188,13 @@ public abstract class BaseController implements Runnable {
                             button = ControllerButtonEvent.BUTTON_VOLUME_DOWN;
                             break;
                     }
-                    eventB.button = button;
-                    eventB.down = event.keyEvent.getAction() == 0;
+                    controllerButtonEvent.button = button;
+                    controllerButtonEvent.down = event.keyEvent.getAction() == 0;
 
-                    controllerListener.onControllerButtonEvent(eventB);
+                    controllerListener.onControllerButtonEvent(controllerButtonEvent);
                     break;
-                case PhoneEvent.Type.DEPTH_MAP:
+                case PhoneEvent.Type.DEPTH_MAP: //not used right now
+                    Log.d("DEPTH_MAP", event.depthMapEvent.toString());
                     break;
             }
         }

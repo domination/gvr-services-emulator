@@ -60,7 +60,7 @@ message PhoneEvent {
     }
 
     enum Type {
-        NONE = 0;
+        //NONE = 0;
         MOTION = 1;
         GYROSCOPE = 2;
         ACCELEROMETER = 3;
