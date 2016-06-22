@@ -5,20 +5,26 @@
 
     <string name="switch_enabled">Enabled</string>
     <string name="switch_disabled">Disabled</string>
+    <string name="wrong_ip_address">Wrong IP address</string>
 
     <!-- Emulator settings -->
     <string name="pref_header_emulator">Emulator settings</string>
 
-    <string name="pref_header_connection">Search Controller Emulator on:</string>
+    <string name="pref_header_connection">Enabled Controller Emulator</string>
 
-    <string name="pref_header_wifi">Wi-Fi</string>
+    <string name="pref_title_wifi">Wi-Fi</string>
+    <string name="pref_title_bluetooth">Bluetooth</string>
+
+    <string name="pref_category_title_wifi">Wi-Fi settings:</string>
     <string name="pref_title_ip_address">IP Address</string>
     <string name="pref_default_ip_address">192.168.1.101</string>
 
     <string name="pref_title_port_number">Port</string>
     <string name="pref_default_port_number">7003</string>
 
-    <string name="pref_header_bluetooth">Bluetooth</string>
+    <string name="pref_category_title_bluetooth">Bluetooth settings:</string>
+    <string name="pref_title_bt_device">Device name</string>
+    <string name="pref_default_bt_device"></string>
 
     <string name="app_controller_client_title">Shortcut for controllerclient</string>
     <string name="app_controller_client_class">com.google.vr.sdk.samples.controllerclient.ControllerClientActivity</string>

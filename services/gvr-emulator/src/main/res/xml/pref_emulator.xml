@@ -1,5 +1,5 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:persistent="false">
+    android:persistent="true">
 
     <PreferenceCategory android:title="@string/pref_header_connection">
         <SwitchPreference
@@ -8,25 +8,26 @@
             android:key="emulator_wifi"
             android:summaryOff="@string/switch_disabled"
             android:summaryOn="@string/switch_enabled"
-            android:title="@string/pref_header_wifi" />
+            android:title="@string/pref_title_wifi" />
         <SwitchPreference
             android:icon="@drawable/ic_bluetooth_black_24dp"
             android:key="emulator_bluetooth"
             android:summaryOff="@string/switch_disabled"
             android:summaryOn="@string/switch_enabled"
-            android:title="@string/pref_header_bluetooth" />
+            android:title="@string/pref_title_bluetooth" />
     </PreferenceCategory>
 
     <PreferenceCategory
         android:dependency="emulator_wifi"
         android:shouldDisableView="true"
-        android:title="@string/pref_header_wifi">
-        <EditTextPreference
+        android:title="@string/pref_category_title_wifi">
+        <com.google.vr.vrcore.settings.helper.IPAddressPreference
             android:defaultValue="@string/pref_default_ip_address"
             android:digits="0123456789."
             android:inputType="number|numberDecimal"
             android:key="emulator_ip_address"
             android:maxLines="1"
+            android:selectable="true"
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:title="@string/pref_title_ip_address" />
@@ -45,7 +46,17 @@
     <PreferenceCategory
         android:dependency="emulator_bluetooth"
         android:shouldDisableView="true"
-        android:title="@string/pref_header_bluetooth"></PreferenceCategory>
+        android:title="@string/pref_category_title_bluetooth">
+        <EditTextPreference
+            android:defaultValue="@string/pref_default_bt_device"
+            android:digits="0123456789."
+            android:inputType="number|numberDecimal"
+            android:key="emulator_bt_device"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_bt_device" />
+    </PreferenceCategory>
 
 
 </PreferenceScreen>

@@ -10,11 +10,25 @@ import com.google.vr.vrcore.R;
 import java.util.List;
 
 public class VrSettingsActivity extends PreferenceActivity {
+//    final BluetoothAdapter bluetooth = BluetoothAdapter.getDefaultAdapter();
+//
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        Log.w("onActivityResult", "requestCode: " + requestCode + ", resultCode: " + resultCode);
+//        if (data != null) {
+//            Log.w("onActivityResult", data.toString());
+//        }
+//    }
 
     @Override
     public void onBuildHeaders(List<Header> target) {
         super.onBuildHeaders(target);
         loadHeadersFromResource(R.xml.pref_headers, target);
+//
+//        if (!bluetooth.isEnabled()) {
+//            startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), 0);
+//        }
     }
 
     @Override

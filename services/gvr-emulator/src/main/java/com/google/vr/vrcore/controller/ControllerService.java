@@ -60,7 +60,7 @@ public class ControllerService extends Service {
             @Override
             public boolean registerListener(final int controllerId, final String key, final IControllerListener listener) throws RemoteException {
                 Log.d("ControllerService", "registerListener(" + controllerId + ", " + key + ", " + listener.getClass().getName() + ")");
-                if (controllerId != 0 || listener == null) {
+                if (controllerId != 0) {
                     return false;
                 }
                 final String keyMasked = getKeyUid(key);
@@ -203,9 +203,8 @@ public class ControllerService extends Service {
         try {
             this.mapListeners.put(key, new RegisteredControllerListener(controllerId, listener));
 
-            Iterator itControllerProviders = this.mapControllerProviders.entrySet().iterator();
-            while (itControllerProviders.hasNext()) {
-                ((BaseController) ((Map.Entry) itControllerProviders.next()).getValue()).isEnabled = true;
+            for (Object o : this.mapControllerProviders.entrySet()) {
+                ((BaseController) ((Map.Entry) o).getValue()).isEnabled = true;
             }
 
             refreshMapListeners();
@@ -227,9 +226,8 @@ public class ControllerService extends Service {
                 controller = null;
 
                 synchronized (this.mapControllerProviders) {
-                    Iterator itControllerProviders = this.mapControllerProviders.entrySet().iterator();
-                    while (itControllerProviders.hasNext()) {
-                        BaseController _controller = (BaseController) ((Map.Entry) itControllerProviders.next()).getValue();
+                    for (Object o : this.mapControllerProviders.entrySet()) {
+                        BaseController _controller = (BaseController) ((Map.Entry) o).getValue();
                         if (_controller.isAvailable()) {
                             _controller.isEnabled = true;
                             _controller.setControllerListener(registeredControllerListener);

@@ -34,7 +34,7 @@
         </service>
 
         <service
-            android:name="com.google.vr.vrcore.controller.ControllerService"
+            android:name=".controller.ControllerService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -56,6 +56,7 @@
                 <category android:name="com.google.intent.category.CARDBOARD" />
             </intent-filter>
             <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
                 <action android:name="com.google.intent.action.vr.VR_SETTINGS" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

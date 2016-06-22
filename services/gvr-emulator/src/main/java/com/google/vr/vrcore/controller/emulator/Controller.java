@@ -99,8 +99,7 @@ class SocketEx extends Socket {
 
     @Override
     public boolean isConnected() {
-        if (this.bluetoothSocket == null) return false;
-        return this.bluetoothSocket.isConnected();
+        return this.bluetoothSocket != null && this.bluetoothSocket.isConnected();
     }
 
     @Override
@@ -178,7 +177,7 @@ class SelectorEx extends AbstractSelector {
 
     protected SelectorEx(SelectorProvider selectorProvider) {
         super(selectorProvider);
-        keys = new HashSet<SelectionKey>();
+        keys = new HashSet<>();
     }
 
     @Override
@@ -218,7 +217,7 @@ class SelectorEx extends AbstractSelector {
     @Override
     public Set<SelectionKey> selectedKeys() {
         //Log.w("SelectorEx", "selectedKeys");
-        return new HashSet<SelectionKey>(keys);
+        return new HashSet<>(keys);
     }
 
     @Override
@@ -313,11 +312,7 @@ final class SocketChannelEx extends SocketChannel {
             this.readChannel = null;
         }
         socketEx = new SocketEx();
-        try {
-            socketEx.connect(address);
-        } catch (IOException e) {
-            throw e;
-        }
+        socketEx.connect(address);
         return socketEx.isConnected();
     }
 
@@ -458,7 +453,6 @@ public class Controller extends BaseController {
             setState(ControllerStates.DISCONNECTED);
             isEnabled = false;
             Log.d("EmulatorClientSocket", "!channel.isConnected");
-            return;
         }
     }
 
@@ -472,7 +466,7 @@ public class Controller extends BaseController {
         return registeredControllerListener.currentState == ControllerStates.CONNECTED;
     }
 
-    private static boolean setBluetooth(boolean enable) {
+    private boolean setBluetooth(boolean enable) {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         boolean isEnabled = bluetoothAdapter.isEnabled();
         if (enable && !isEnabled) {

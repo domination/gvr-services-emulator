@@ -1,5 +1,6 @@
 package com.google.vr.vrcore.settings;
 
+import android.app.ActionBar;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -18,8 +19,10 @@ public class VrSettingsFragment extends PreferenceFragment implements OnPreferen
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-
+        ActionBar actionBar = getActivity().getActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         String settings = getArguments().getString("settings");
         int resId = getResources().getIdentifier(settings, "xml", this.getActivity().getApplicationContext().getPackageName());
 
