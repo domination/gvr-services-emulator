@@ -158,11 +158,9 @@ public class Controller extends BaseController {
         return registeredControllerListener.currentState == ControllerStates.CONNECTED;
     }
 
-    private BluetoothAdapter bluetoothAdapter;
-
     public boolean setBluetooth(boolean enable) {
         this.tryBluetooth = enable;
-        this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) return false;
         boolean isEnabled = bluetoothAdapter.isEnabled();
         if (enable && !isEnabled) {
@@ -194,7 +192,7 @@ public class Controller extends BaseController {
         try {
             channel = null;
 
-            SocketAddress address = null;
+            SocketAddress address;
             if (tryBluetooth) {
                 setBluetooth(true);
 

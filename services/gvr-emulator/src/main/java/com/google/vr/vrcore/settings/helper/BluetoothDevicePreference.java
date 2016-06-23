@@ -11,7 +11,6 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.SimpleAdapter;
@@ -45,13 +44,14 @@ public class BluetoothDevicePreference extends ListPreference implements DialogI
     }
 
     List<Map<String, String>> entryList = null;
+
     private void init() {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
 
-        entryList = new ArrayList<Map<String, String>>();
+        entryList = new ArrayList<>();
         for (BluetoothDevice bt : pairedDevices) {
-            Map<String, String> m = new HashMap<String, String>();
+            Map<String, String> m = new HashMap<>();
             m.put("name", bt.getName());
             m.put("address", bt.getAddress());
             entryList.add(m);
@@ -77,7 +77,7 @@ public class BluetoothDevicePreference extends ListPreference implements DialogI
         super.onClick(dialog, which);
         if (which >= 0) {
             getDialog().dismiss();
-            Map<String, String> m = (Map<String, String>) listAdapter.getItem(which);
+            Map<String, String> m = entryList.get(which);
             persistString(m.get("address"));
             getOnPreferenceChangeListener().onPreferenceChange(this, m.get("address"));
         }
@@ -105,7 +105,6 @@ public class BluetoothDevicePreference extends ListPreference implements DialogI
 
     private Dialog mDialog;
 
-
     @Override
     public Dialog getDialog() {
         //return super.getDialog();
@@ -114,9 +113,9 @@ public class BluetoothDevicePreference extends ListPreference implements DialogI
 
     @Override
     public int findIndexOfValue(String value) {
-        int c = listAdapter.getCount();
+        int c = entryList.size();
         for (int i = 0; i < c; i++) {
-            if (((Map<String, String>) listAdapter.getItem(i)).get("address") == value) {
+            if (entryList.get(i).get("address").equals(value)) {
                 return i;
             }
         }

@@ -30,14 +30,14 @@ public class ControllerService extends Service {
     private Runnable stopAction;
 
     private IControllerService.Stub controllerService;
-    private final Map mapListeners;
-    private final Map mapControllerProviders;
+    private final Map<String, RegisteredControllerListener> mapListeners;
+    private final Map<String, BaseController> mapControllerProviders;
     private int registerCount;
 
     public ControllerService() {
-        this.mapListeners = Collections.synchronizedMap(new HashMap());
+        this.mapListeners = Collections.synchronizedMap(new HashMap<String, RegisteredControllerListener>());
         this.registerCount = 0;
-        this.mapControllerProviders = Collections.synchronizedMap(new HashMap());
+        this.mapControllerProviders = Collections.synchronizedMap(new HashMap<String, BaseController>());
         this.stopAction = new Runnable() {
             @Override
             public void run() {

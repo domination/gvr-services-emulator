@@ -16,7 +16,7 @@ public class BluetoothSelector extends AbstractSelector {
     private HashSet<SelectionKey> keys;
     private HashSet<SelectionKey> selectedKeys;
 
-    protected BluetoothSelector(SelectorProvider selectorProvider) {
+    BluetoothSelector(SelectorProvider selectorProvider) {
         super(selectorProvider);
         this.keys = new HashSet<>();
         this.selectedKeys = new HashSet<>();
