@@ -59,12 +59,12 @@ public abstract class BaseController implements Runnable {
                     this.handler.postDelayed(this, 2000);
                     return;
                 } else {
-                    this.handler.post(new Runnable() {
+                    this.handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             service.refreshMapListeners();
                         }
-                    });
+                    }, 2000);
                     return;
                 }
             }

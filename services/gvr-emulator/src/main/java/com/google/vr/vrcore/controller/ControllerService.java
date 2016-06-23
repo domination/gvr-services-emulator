@@ -77,12 +77,7 @@ public class ControllerService extends Service {
             public boolean unregisterListener(String key) throws RemoteException {
                 Log.d("ControllerService", "unregisterListener(" + key + ")");
                 String keyMasked = getKeyUid(key);
-                if ((mapListeners.get(keyMasked)) == null) {
-                    Log.d(ControllerService.class.getSimpleName(), "Listener not registered. Unregister failed.");
-                    return false;
-                }
-                mapListeners.remove(keyMasked);
-                return true;
+                return ControllerService.this.unregisterListener(keyMasked);
             }
         };
     }
@@ -214,8 +209,20 @@ public class ControllerService extends Service {
         }
     }
 
+    public final boolean unregisterListener(String key) {
+        if ((mapListeners.get(key)) == null) {
+            Log.d(ControllerService.class.getSimpleName(), "Listener not registered. Unregister failed.");
+            return false;
+        }
+        mapListeners.remove(key);
+        return true;
+    }
+
     public final void refreshMapListeners() {
         synchronized (this.mapListeners) {
+
+            if (this.registerCount <= 0) return;
+
             Iterator it = this.mapListeners.entrySet().iterator();
             while (it.hasNext()) {
                 RegisteredControllerListener registeredControllerListener = (RegisteredControllerListener) ((Map.Entry) it.next()).getValue();
