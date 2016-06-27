@@ -2,14 +2,14 @@
     <string name="app_name">Emulator VR Services</string>
     <string name="app_desc">Emulator VR Services desc</string>
 
-    <!-- Strings related to Settings -->
+    <!-- Configure Cardboard Viewer -->
+    <string name="cardboard_viewer_title">Configure Cardboard Viewer</string>
+    <string name="cardboard_viewer_package">com.google.samples.apps.cardboarddemo</string>
+    <string name="cardboard_viewer_class">com.google.vr.cardboard.paperscope.carton.Settings</string>
+    <string name="cardboard_viewer_action">com.google.vrtoolkit.cardboard.CONFIGURE</string>
 
-    <string name="switch_enabled">Enabled</string>
-    <string name="switch_disabled">Disabled</string>
-    <string name="wrong_ip_address">Wrong IP address</string>
-
-    <!-- Emulator settings -->
-    <string name="pref_header_emulator">Emulator settings</string>
+    <!-- Controller Emulator Settings -->
+    <string name="pref_header_emulator">Controller Emulator Settings</string>
 
     <string name="pref_header_connection">Enabled Controller Emulator</string>
 
@@ -26,8 +26,17 @@
     <string name="pref_category_title_bluetooth">Bluetooth settings:</string>
     <string name="pref_title_bt_device">Device name</string>
     <string name="pref_default_bt_device"></string>
+    <string name="pref_default_bt_uuid">ab001ac1-d740-4abb-a8e6-1cb5a49628fa</string>
 
+    <!-- Shortcut for controllerclient -->
     <string name="app_controller_client_title">Shortcut for controllerclient</string>
     <string name="app_controller_client_class">com.google.vr.sdk.samples.controllerclient.ControllerClientActivity</string>
     <string name="app_controller_client_package">com.google.vr.sdk.samples.controllerclient</string>
+
+    <!-- Strings related to Settings -->
+
+    <string name="switch_enabled">Enabled</string>
+    <string name="switch_disabled">Disabled</string>
+    <string name="wrong_ip_address">Wrong IP address</string>
+
 </resources>

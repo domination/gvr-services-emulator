@@ -1,6 +1,15 @@
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
 
     <header
+        android:icon="@drawable/ic_cardboard_black_24dp"
+        android:title="@string/cardboard_viewer_title">
+        <intent
+            android:action="@string/cardboard_viewer_action"
+            android:targetClass="@string/cardboard_viewer_class"
+            android:targetPackage="@string/cardboard_viewer_package" />
+    </header>
+
+    <header
         android:fragment="com.google.vr.vrcore.settings.VrSettingsFragment"
         android:icon="@drawable/ic_settings_black_24dp"
         android:title="@string/pref_header_emulator">
@@ -9,21 +18,12 @@
             android:value="pref_emulator" />
     </header>
 
-    <header
+    <!-- <header
         android:icon="@drawable/ic_play_circle_outline_black_24dp"
         android:title="@string/app_controller_client_title">
         <intent
             android:targetClass="@string/app_controller_client_class"
             android:targetPackage="@string/app_controller_client_package" />
-    </header>
-
-    <header
-        android:icon="@drawable/ic_play_circle_outline_black_24dp"
-        android:title="cardboard.CONFIGURE">
-        <intent
-            android:action="com.google.vrtoolkit.cardboard.CONFIGURE"
-            android:targetPackage="com.google.samples.apps.cardboarddemo"
-            android:targetClass="com.google.vr.cardboard.paperscope.carton.Settings"/>
-    </header>
+    </header> -->
 
 </preference-headers>

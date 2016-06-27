@@ -1,5 +1,6 @@
 package com.google.vr.vrcore.settings;
 
+import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.util.Log;
@@ -20,6 +21,15 @@ public class VrSettingsActivity extends PreferenceActivity {
 //            Log.d("onActivityResult", data.toString());
 //        }
 //    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        String action = getIntent().getAction();
+        if (action != null && action.equals("com.google.vrtoolkit.cardboard.CONFIGURE")) {
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+    }
 
     @Override
     public void onBuildHeaders(List<Header> target) {

@@ -11,17 +11,22 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.google.vr.vrcore.R;
 import com.google.vr.vrcore.controller.api.ControllerServiceConsts;
 import com.google.vr.vrcore.controller.api.ControllerStates;
 import com.google.vr.vrcore.controller.api.IControllerListener;
 import com.google.vr.vrcore.controller.api.IControllerService;
 
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+
+import javaext.net.bluetooth.BluetoothSocketAddress;
 
 public class ControllerService extends Service {
 
@@ -97,10 +102,13 @@ public class ControllerService extends Service {
         boolean isBluetooth = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext()).getBoolean("emulator_bluetooth", true);
 
         if (isWiFi) {
-            this.mapControllerProviders.put("EmulatorWiFi", new com.google.vr.vrcore.controller.emulator.Controller(this.handler, getApplicationContext()));
+            String ip = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("emulator_ip_address", getString(R.string.pref_default_ip_address));
+            String port = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("emulator_port_number", getString(R.string.pref_default_port_number));
+            this.mapControllerProviders.put("EmulatorWiFi", new com.google.vr.vrcore.controller.emulator.Controller(this.handler, new InetSocketAddress(ip, Integer.parseInt(port))));
         }
         if (isBluetooth) {
-            com.google.vr.vrcore.controller.emulator.Controller emulator = new com.google.vr.vrcore.controller.emulator.Controller(this.handler, getApplicationContext());
+            String bt_address = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext()).getString("emulator_bt_device", getString(R.string.pref_default_bt_device));
+            com.google.vr.vrcore.controller.emulator.Controller emulator = new com.google.vr.vrcore.controller.emulator.Controller(this.handler, new BluetoothSocketAddress(bt_address, UUID.fromString(getString(R.string.pref_default_bt_uuid))));
             if (emulator.setBluetooth(true)) {
                 this.mapControllerProviders.put("EmulatorBluetooth", emulator);
             }
@@ -144,9 +152,8 @@ public class ControllerService extends Service {
                 }
             }
         });
-        boolean result = super.onUnbind(intent);
-        Log.d("onUnbind", "result: " + result);
-        return result;
+        super.onUnbind(intent);
+        return true;
     }
 
     @Override

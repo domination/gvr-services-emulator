@@ -1,11 +1,9 @@
 package com.google.vr.vrcore.controller.emulator;
 
 import android.bluetooth.BluetoothAdapter;
-import android.content.Context;
 import android.os.DeadObjectException;
 import android.os.Handler;
 import android.os.RemoteException;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.protobuf.nano.CodedInputByteBufferNano;
@@ -16,7 +14,6 @@ import com.google.vr.vrcore.controller.api.ControllerStates;
 
 import java.io.IOException;
 import java.net.ConnectException;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
@@ -24,7 +21,6 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.UUID;
 
 import javaext.net.bluetooth.BluetoothSocketAddress;
 import javaext.nio.channels.bluetooth.BluetoothSelector;
@@ -32,14 +28,13 @@ import javaext.nio.channels.bluetooth.BluetoothSocketChannel;
 
 public class Controller extends BaseController {
 
-    private Context context;
-
-    public Controller(Handler handler, Context context) {
+    public Controller(Handler handler, SocketAddress socketAddress) {
         super(handler);
-        this.context = context;
+        this.address = socketAddress;
     }
 
     private SocketChannel channel;
+    private SocketAddress address;
     private Selector selector;
 
     private void connect(SelectionKey key) throws IOException {
@@ -192,24 +187,11 @@ public class Controller extends BaseController {
         try {
             channel = null;
 
-            SocketAddress address;
             if (tryBluetooth) {
                 setBluetooth(true);
-
-                //Set<BluetoothDevice> bluetoothDeviceIterator = this.bluetoothAdapter.getBondedDevices();
-                //for (BluetoothDevice device : bluetoothDeviceIterator) {
-                //    Log.d("bluetooth", device.getAddress() + " " + device.getName());
-                //    address = new BluetoothSocketAddress(device.getAddress(), UUID.fromString("ab001ac1-d740-4abb-a8e6-1cb5a49628fa"));
-                //    break;
-                //}
-                String bt_address = PreferenceManager.getDefaultSharedPreferences(this.context).getString("emulator_bt_device", "");
-                address = new BluetoothSocketAddress(bt_address, UUID.fromString("ab001ac1-d740-4abb-a8e6-1cb5a49628fa"));
                 channel = BluetoothSocketChannel.open();
-                Log.d("tryConnect", "Device name: " + ((BluetoothSocketAddress) address).getRemoteDevice().getName());
+                Log.d("tryConnect", "Device name: " + ((BluetoothSocketAddress) address).getDeviceName());
             } else {
-                String ip = PreferenceManager.getDefaultSharedPreferences(this.context).getString("emulator_ip_address", "192.168.1.101" /* default value pref_default_ip_address */);
-                String port = PreferenceManager.getDefaultSharedPreferences(this.context).getString("emulator_port_number", "7003" /* default value pref_default_port_number */);
-                address = new InetSocketAddress(ip, Integer.parseInt(port));
                 channel = SocketChannel.open();
             }
 
