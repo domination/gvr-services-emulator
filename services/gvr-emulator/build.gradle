@@ -49,9 +49,14 @@ android {
             proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
         }
     }
+
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
     protobuf files('proto/Protos.proto')
     compile project(':libraries-common')
 }

@@ -144,12 +144,13 @@ public class ControllerService extends Service {
                 }
             }
         });
-        return true;
+        boolean result = super.onUnbind(intent);
+        Log.d("onUnbind", "result: " + result);
+        return result;
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         Log.d("com.google.vr.vrcore", "onDestroy");
         final CountDownLatch countDownLatch = new CountDownLatch(1);
 
@@ -166,8 +167,13 @@ public class ControllerService extends Service {
             e.printStackTrace();
         }
         if (this.handlerThread != null) {
+            this.handler.removeCallbacksAndMessages(null);
             this.handlerThread.quitSafely();
+            this.handlerThread.getLooper().quit();
         }
+        this.handler = null;
+        Log.d("com.google.vr.vrcore", "onDestroy - complete");
+        super.onDestroy();
     }
 
     private String getKeyUid(String key) {

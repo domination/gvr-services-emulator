@@ -17,4 +17,13 @@
             android:targetPackage="@string/app_controller_client_package" />
     </header>
 
+    <header
+        android:icon="@drawable/ic_play_circle_outline_black_24dp"
+        android:title="cardboard.CONFIGURE">
+        <intent
+            android:action="com.google.vrtoolkit.cardboard.CONFIGURE"
+            android:targetPackage="com.google.samples.apps.cardboarddemo"
+            android:targetClass="com.google.vr.cardboard.paperscope.carton.Settings"/>
+    </header>
+
 </preference-headers>

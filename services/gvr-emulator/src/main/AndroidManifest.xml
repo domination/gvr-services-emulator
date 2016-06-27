@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.google.vr.vrcore"
-    android:persistent="true">
+    android:persistent="false">
 
+    <!-- android:sharedUserId="android.uid.system" -->
     <!-- VR feature tags. -->
     <uses-feature
         android:name="android.software.vr.mode"
@@ -17,17 +18,20 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@android:style/Theme.DeviceDefault.Light.DarkActionBar">
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+    <application
+        android:allowBackup="false"
+        android:description="@string/app_desc"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name">
+        <!--  -->
         <service
             android:name=".common.VrCoreListenerService"
             android:enabled="true"
-            android:exported="true"
-            android:permission="android.permission.BIND_VR_LISTENER_SERVICE">
+            android:exported="true">
+            <!-- android:permission="android.permission.BIND_VR_LISTENER_SERVICE"> -->
             <intent-filter>
                 <action android:name="android.service.vr.VrListenerService" />
             </intent-filter>
@@ -36,7 +40,7 @@
         <service
             android:name=".controller.ControllerService"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true"> <!-- android:process="com.google.vr.vrcore.service" -->
             <intent-filter>
                 <action android:name="com.google.vr.vrcore.controller.BIND" />
             </intent-filter>
@@ -46,7 +50,8 @@
             android:name=".settings.VrSettingsActivity"
             android:enabled="true"
             android:exported="true"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.DeviceDefault.Light.DarkActionBar">
             <intent-filter android:priority="100">
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="com.google.vrtoolkit.cardboard.CONFIGURE" />
@@ -58,6 +63,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="com.google.intent.action.vr.VR_SETTINGS" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

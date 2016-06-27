@@ -23,19 +23,23 @@ public class VrSettingsFragment extends PreferenceFragment implements OnPreferen
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        String settings = getArguments().getString("settings");
-        int resId = getResources().getIdentifier(settings, "xml", this.getActivity().getApplicationContext().getPackageName());
+        Bundle args = getArguments();
+        if (args != null) {
+            String settings = args.getString("settings");
 
-        if (resId == 0) {
-            Toast.makeText(this.getContext(), settings + " " + resId, Toast.LENGTH_SHORT).show();
-        }
-        addPreferencesFromResource(resId);
+            int resId = getResources().getIdentifier(settings, "xml", this.getActivity().getApplicationContext().getPackageName());
 
-        Set<String> keys = this.getPreferenceManager().getSharedPreferences().getAll().keySet();
-        for (String prefName : keys) {
-            Preference pref = findPreference(prefName);
-            if (pref != null) {
-                bindPreferenceSummaryToValue(pref);
+            if (resId == 0) {
+                Toast.makeText(this.getContext(), settings + " " + resId, Toast.LENGTH_SHORT).show();
+            }
+            addPreferencesFromResource(resId);
+
+            Set<String> keys = this.getPreferenceManager().getSharedPreferences().getAll().keySet();
+            for (String prefName : keys) {
+                Preference pref = findPreference(prefName);
+                if (pref != null) {
+                    bindPreferenceSummaryToValue(pref);
+                }
             }
         }
     }

@@ -47,19 +47,21 @@ public class BluetoothDevicePreference extends ListPreference implements DialogI
 
     private void init() {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+        if(mBluetoothAdapter != null) {
+            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
 
-        entryList = new ArrayList<>();
-        for (BluetoothDevice bt : pairedDevices) {
-            Map<String, String> m = new HashMap<>();
-            m.put("name", bt.getName());
-            m.put("address", bt.getAddress());
-            entryList.add(m);
+            entryList = new ArrayList<>();
+            for (BluetoothDevice bt : pairedDevices) {
+                Map<String, String> m = new HashMap<>();
+                m.put("name", bt.getName());
+                m.put("address", bt.getAddress());
+                entryList.add(m);
+            }
+            String[] keys = {"name", "address"};
+            int[] widgetIds = {android.R.id.text1, android.R.id.text2};
+
+            listAdapter = new SimpleAdapter(this.getContext(), entryList, android.R.layout.simple_list_item_2, keys, widgetIds);
         }
-        String[] keys = {"name", "address"};
-        int[] widgetIds = {android.R.id.text1, android.R.id.text2};
-
-        listAdapter = new SimpleAdapter(this.getContext(), entryList, android.R.layout.simple_list_item_2, keys, widgetIds);
     }
 
     private OnPreferenceChangeListener onPreferenceChangeListener;
