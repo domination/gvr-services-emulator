@@ -4,8 +4,8 @@
 
     <!-- Configure Cardboard Viewer -->
     <string name="cardboard_viewer_title">Configure Cardboard Viewer</string>
-    <string name="cardboard_viewer_package">com.google.samples.apps.cardboarddemo</string>
-    <string name="cardboard_viewer_class">com.google.vr.cardboard.paperscope.carton.Settings</string>
+    <!-- <string name="cardboard_viewer_package">com.google.samples.apps.cardboarddemo</string>
+    <string name="cardboard_viewer_class">com.google.vr.cardboard.paperscope.carton.Settings</string> -->
     <string name="cardboard_viewer_action">com.google.vrtoolkit.cardboard.CONFIGURE</string>
 
     <!-- Controller Emulator Settings -->

@@ -3,10 +3,13 @@
     <header
         android:icon="@drawable/ic_cardboard_black_24dp"
         android:title="@string/cardboard_viewer_title">
-        <intent
+        <extra
+            android:name="settings"
+            android:value="cardboard" />
+        <!-- <intent
             android:action="@string/cardboard_viewer_action"
             android:targetClass="@string/cardboard_viewer_class"
-            android:targetPackage="@string/cardboard_viewer_package" />
+            android:targetPackage="@string/cardboard_viewer_package" /> -->
     </header>
 
     <header

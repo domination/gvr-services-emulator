@@ -1,12 +1,15 @@
 package com.google.vr.vrcore.settings;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.util.Log;
 import android.view.MenuItem;
 
+import com.google.vr.cardboard.UiUtils;
 import com.google.vr.vrcore.R;
+import com.google.vr.vrcore.settings.helper.FilteredPackageManager;
 
 import java.util.List;
 
@@ -26,7 +29,7 @@ public class VrSettingsActivity extends PreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String action = getIntent().getAction();
-        if (action != null && action.equals("com.google.vrtoolkit.cardboard.CONFIGURE")) {
+        if (action != null && action.equals(getString(R.string.cardboard_viewer_action))) {
             getActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }
@@ -39,6 +42,20 @@ public class VrSettingsActivity extends PreferenceActivity {
 //        if (!bluetooth.isEnabled()) {
 //            startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), 0);
 //        }
+    }
+
+    @Override
+    public PackageManager getPackageManager() {
+        return new FilteredPackageManager(this, super.getPackageManager());
+    }
+
+    @Override
+    public void onHeaderClick(Header header, int position) {
+        if (header.fragmentArguments.getString("settings").equals("cardboard")) {
+            UiUtils.launchOrInstallCardboard(this, false);
+        } else {
+            super.onHeaderClick(header, position);
+        }
     }
 
     @Override
