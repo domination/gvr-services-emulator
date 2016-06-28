@@ -43,13 +43,13 @@ public class BluetoothDevicePreference extends ListPreference implements DialogI
         init();
     }
 
-    List<Map<String, String>> entryList = null;
+    private List<Map<String, String>> entryList = null;
 
     private void init() {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         entryList = new ArrayList<>();
 
-        if(mBluetoothAdapter != null) {
+        if (mBluetoothAdapter != null) {
             Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
 
             for (BluetoothDevice bt : pairedDevices) {
@@ -85,11 +85,6 @@ public class BluetoothDevicePreference extends ListPreference implements DialogI
             persistString(m.get("address"));
             getOnPreferenceChangeListener().onPreferenceChange(this, m.get("address"));
         }
-    }
-
-    @Override
-    protected boolean persistString(String newValue) {
-        return super.persistString(newValue);
     }
 
     @Override

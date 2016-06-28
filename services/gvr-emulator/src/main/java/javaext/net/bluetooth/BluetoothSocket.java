@@ -13,7 +13,7 @@ import java.net.UnknownHostException;
 
 public class BluetoothSocket extends Socket {
 
-    volatile boolean isCreated = false;
+    private volatile boolean isCreated = false;
     private boolean isClosed = false;
     private boolean isBound = false;
     private final Object connectLock = new Object();
@@ -21,7 +21,7 @@ public class BluetoothSocket extends Socket {
     private android.bluetooth.BluetoothSocket bluetoothSocket = null;
 
     @Override
-    public void connect(SocketAddress remoteAddr, int timeout) throws IOException {
+    public void connect(SocketAddress remoteAddress, int timeout) throws IOException {
         //super.connect(remoteAddr, timeout);
         if (timeout < 0) {
             throw new IllegalArgumentException("timeout < 0");
@@ -29,15 +29,15 @@ public class BluetoothSocket extends Socket {
         if (isConnected()) {
             throw new SocketException("Already connected");
         }
-        if (remoteAddr == null) {
-            throw new IllegalArgumentException("remoteAddr == null");
+        if (remoteAddress == null) {
+            throw new IllegalArgumentException("remoteAddress == null");
         }
 
-        if (!(remoteAddr instanceof BluetoothSocketAddress)) {
+        if (!(remoteAddress instanceof BluetoothSocketAddress)) {
             throw new IllegalArgumentException("Remote address not an BluetoothSocketAddress: " +
-                    remoteAddr.getClass());
+                    remoteAddress.getClass());
         }
-        BluetoothSocketAddress bluetoothSocketAddress = (BluetoothSocketAddress) remoteAddr;
+        BluetoothSocketAddress bluetoothSocketAddress = (BluetoothSocketAddress) remoteAddress;
 
         checkOpenAndCreate(true, bluetoothSocketAddress);
 
@@ -53,11 +53,11 @@ public class BluetoothSocket extends Socket {
 //                    // options on create
 //                    // impl.create(true);
 //                    if (!usingSocks()) {
-//                        impl.bind(Inet6Address.ANY, 0);
+//                        impl.bind(iNet6Address.ANY, 0);
 //                    }
                     isBound = true;
                 }
-                //impl.connect(remoteAddr, timeout);
+                //impl.connect(remoteAddress, timeout);
                 if (this.bluetoothSocket != null) {
                     this.bluetoothSocket.connect();
                 }

@@ -1,6 +1,7 @@
 package com.google.vr.vrcore.controller;
 
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
@@ -32,10 +33,10 @@ public class ControllerService extends Service {
 
     private HandlerThread handlerThread;
     private Handler handler;
-    private Runnable stopAction;
-    private Runnable refreshMap;
+    private final Runnable stopAction;
+    private final Runnable refreshMap;
 
-    private IControllerService.Stub controllerService;
+    private final IControllerService.Stub controllerService;
     private final Map<String, RegisteredControllerListener> mapListeners;
     private final Map<String, BaseController> mapControllerProviders;
     private int registerCount;
@@ -95,6 +96,18 @@ public class ControllerService extends Service {
         };
     }
 
+    private static boolean setBluetooth(boolean enable) {
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter == null) return false;
+        boolean isEnabled = bluetoothAdapter.isEnabled();
+        if (enable && !isEnabled) {
+            return bluetoothAdapter.enable();
+        } else if (!enable && isEnabled) {
+            return bluetoothAdapter.disable();
+        }
+        return true;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -118,14 +131,12 @@ public class ControllerService extends Service {
                 this.mapControllerProviders.put("EmulatorWiFi", emulator);
             }
         }
-        if (isBluetooth) {
+        if (isBluetooth && setBluetooth(true)) {
             String bt_address = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext()).getString("emulator_bt_device", getString(R.string.pref_default_bt_device));
             com.google.vr.vrcore.controller.emulator.Controller emulator = new com.google.vr.vrcore.controller.emulator.Controller(this.handler, new BluetoothSocketAddress(bt_address, UUID.fromString(getString(R.string.pref_default_bt_uuid))));
             emulator.afterDisconnect = this.refreshMap;
-            if (emulator.setBluetooth(true)) {
-                synchronized (this.mapControllerProviders) {
-                    this.mapControllerProviders.put("EmulatorBluetooth", emulator);
-                }
+            synchronized (this.mapControllerProviders) {
+                this.mapControllerProviders.put("EmulatorBluetooth", emulator);
             }
         }
     }

@@ -2,6 +2,9 @@
     <string name="app_name">Emulator VR Services</string>
     <string name="app_desc">Emulator VR Services desc</string>
 
+    <string name="service_controller_service_name">Emulator VR Services</string>
+    <string name="service_controller_service_desc">Emulator VR Services desc</string>
+
     <!-- Configure Cardboard Viewer -->
     <string name="cardboard_viewer_title">Configure Cardboard Viewer</string>
     <!-- <string name="cardboard_viewer_package">com.google.samples.apps.cardboarddemo</string>
@@ -29,9 +32,9 @@
     <string name="pref_default_bt_uuid">ab001ac1-d740-4abb-a8e6-1cb5a49628fa</string>
 
     <!-- Shortcut for controllerclient -->
-    <string name="app_controller_client_title">Shortcut for controllerclient</string>
+    <!-- <string name="app_controller_client_title">Shortcut for controllerclient</string>
     <string name="app_controller_client_class">com.google.vr.sdk.samples.controllerclient.ControllerClientActivity</string>
-    <string name="app_controller_client_package">com.google.vr.sdk.samples.controllerclient</string>
+    <string name="app_controller_client_package">com.google.vr.sdk.samples.controllerclient</string> -->
 
     <!-- Strings related to Settings -->
 

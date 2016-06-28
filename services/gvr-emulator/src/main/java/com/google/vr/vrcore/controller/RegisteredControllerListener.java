@@ -6,10 +6,10 @@ import com.google.vr.vrcore.controller.api.ControllerListenerOptions;
 import com.google.vr.vrcore.controller.api.IControllerListener;
 
 public class RegisteredControllerListener {
-    public IControllerListener listener;
+    public final IControllerListener listener;
     public ControllerListenerOptions options;
     public int apiVersion;
-    public int controllerId;
+    public final int controllerId;
     public int currentState;
 
     public RegisteredControllerListener(int controllerId, IControllerListener listener) throws RemoteException {

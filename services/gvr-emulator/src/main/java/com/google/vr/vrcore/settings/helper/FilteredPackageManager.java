@@ -1,5 +1,6 @@
 package com.google.vr.vrcore.settings.helper;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -28,8 +29,8 @@ import java.util.List;
 
 public class FilteredPackageManager extends PackageManager {
 
-    private Activity activity;
-    private PackageManager proxy;
+    private final Activity activity;
+    private final PackageManager proxy;
 
     public FilteredPackageManager(Activity a, PackageManager pm) {
         this.activity = a;
@@ -131,10 +132,7 @@ public class FilteredPackageManager extends PackageManager {
 
     @Override
     public boolean isPermissionRevokedByPolicy(String permName, String pkgName) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return this.proxy.isPermissionRevokedByPolicy(permName, pkgName);
-        }
-        return false;
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && this.proxy.isPermissionRevokedByPolicy(permName, pkgName);
     }
 
     @Override
@@ -199,13 +197,13 @@ public class FilteredPackageManager extends PackageManager {
 
     @Override
     public List<ResolveInfo> queryIntentActivities(Intent intent, int flags) {
-        List<ResolveInfo> resolveInfos = new ArrayList<>();
+        List<ResolveInfo> resolveInfoList = new ArrayList<>();
         for (ResolveInfo ri : this.proxy.queryIntentActivities(intent, flags)) {
             if (!ri.activityInfo.name.equals(this.activity.getClass().getName())) {
-                resolveInfos.add(ri);
+                resolveInfoList.add(ri);
             }
         }
-        return resolveInfos;
+        return resolveInfoList;
     }
 
     @Override
@@ -254,8 +252,8 @@ public class FilteredPackageManager extends PackageManager {
     }
 
     @Override
-    public Drawable getDrawable(String packageName, int resid, ApplicationInfo appInfo) {
-        return this.proxy.getDrawable(packageName, resid, appInfo);
+    public Drawable getDrawable(String packageName, int resId, ApplicationInfo appInfo) {
+        return this.proxy.getDrawable(packageName, resId, appInfo);
     }
 
     @Override
@@ -360,13 +358,13 @@ public class FilteredPackageManager extends PackageManager {
     }
 
     @Override
-    public CharSequence getText(String packageName, int resid, ApplicationInfo appInfo) {
-        return this.proxy.getText(packageName, resid, appInfo);
+    public CharSequence getText(String packageName, int resId, ApplicationInfo appInfo) {
+        return this.proxy.getText(packageName, resId, appInfo);
     }
 
     @Override
-    public XmlResourceParser getXml(String packageName, int resid, ApplicationInfo appInfo) {
-        return this.proxy.getXml(packageName, resid, appInfo);
+    public XmlResourceParser getXml(String packageName, int resId, ApplicationInfo appInfo) {
+        return this.proxy.getXml(packageName, resId, appInfo);
     }
 
     @Override
@@ -412,13 +410,13 @@ public class FilteredPackageManager extends PackageManager {
     @Deprecated
     @Override
     public void addPackageToPreferred(String packageName) {
-        this.proxy.addPackageToPreferred(packageName);
+        //this.proxy.addPackageToPreferred(packageName);
     }
 
     @Deprecated
     @Override
     public void removePackageFromPreferred(String packageName) {
-        this.proxy.removePackageFromPreferred(packageName);
+        //this.proxy.removePackageFromPreferred(packageName);
     }
 
     @Override
@@ -429,7 +427,7 @@ public class FilteredPackageManager extends PackageManager {
     @Deprecated
     @Override
     public void addPreferredActivity(IntentFilter filter, int match, ComponentName[] set, ComponentName activity) {
-        this.proxy.addPreferredActivity(filter, match, set, activity);
+        //this.proxy.addPreferredActivity(filter, match, set, activity);
     }
 
     @Override
@@ -467,11 +465,9 @@ public class FilteredPackageManager extends PackageManager {
         return this.proxy.isSafeMode();
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public PackageInstaller getPackageInstaller() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return this.proxy.getPackageInstaller();
-        }
-        return null;
+        return this.proxy.getPackageInstaller();
     }
 }

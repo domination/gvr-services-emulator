@@ -8,8 +8,8 @@ import java.util.UUID;
 
 public class BluetoothSocketAddress extends SocketAddress {
 
-    private String address;
-    private UUID uuid;
+    private final String address;
+    private final UUID uuid;
     private BluetoothDevice bluetoothDevice = null;
 
     public String getAddress() {

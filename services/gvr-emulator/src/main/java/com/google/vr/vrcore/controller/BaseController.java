@@ -27,7 +27,7 @@ public abstract class BaseController implements Runnable {
     private IControllerListener controllerListener;
 
     private long lastDownTimeMS;
-    private Handler handler;
+    private final Handler handler;
 
     public BaseController(Handler handler) {
         this.handler = handler;
@@ -92,11 +92,11 @@ public abstract class BaseController implements Runnable {
         return this.registeredControllerListener.setState(state);
     }
 
-    private ControllerTouchEvent controllerTouchEvent = new ControllerTouchEvent();
-    private ControllerGyroEvent controllerGyroEvent = new ControllerGyroEvent();
-    private ControllerAccelEvent controllerAccelEvent = new ControllerAccelEvent();
-    private ControllerOrientationEvent controllerOrientationEvent = new ControllerOrientationEvent();
-    private ControllerButtonEvent controllerButtonEvent = new ControllerButtonEvent();
+    private final ControllerTouchEvent controllerTouchEvent = new ControllerTouchEvent();
+    private final ControllerGyroEvent controllerGyroEvent = new ControllerGyroEvent();
+    private final ControllerAccelEvent controllerAccelEvent = new ControllerAccelEvent();
+    private final ControllerOrientationEvent controllerOrientationEvent = new ControllerOrientationEvent();
+    private final ControllerButtonEvent controllerButtonEvent = new ControllerButtonEvent();
 
     public void OnPhoneEvent(PhoneEvent event) throws RemoteException {
         if (event != null) {

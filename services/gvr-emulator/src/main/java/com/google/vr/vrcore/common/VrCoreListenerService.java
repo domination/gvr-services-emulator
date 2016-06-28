@@ -1,22 +1,15 @@
 package com.google.vr.vrcore.common;
 
-import android.app.Service;
-import android.content.Intent;
-import android.os.IBinder;
 import android.util.Log;
 
-public class VrCoreListenerService extends Service {
+import com.google.vr.vrcore.common.helper.VrListenerService;
+
+public class VrCoreListenerService extends /*android.service.vr.*/VrListenerService {
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d("VrCoreListenerService", "onCreate");
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        Log.d("VrCoreListenerService", "onBind " + intent.getAction());
-        return null;
     }
 
     @Override

@@ -10,12 +10,14 @@ import java.nio.channels.SocketChannel;
 
 public class BluetoothSelectionKey extends SelectionKey {
 
-    private SocketChannel channel;
+    private final SocketChannel channel;
+    private final Selector selector;
     private int operations;
 
-    public BluetoothSelectionKey(SelectableChannel channel) {
+    public BluetoothSelectionKey(SelectableChannel channel, Selector selector) {
         this.channel = (SocketChannel) channel;
         this.operations = 0;
+        this.selector = selector;
     }
 
     @Override
@@ -69,6 +71,6 @@ public class BluetoothSelectionKey extends SelectionKey {
     @Override
     public Selector selector() {
         Log.d("BluetoothSelectionKey", "selector");
-        return null;
+        return this.selector;
     }
 }

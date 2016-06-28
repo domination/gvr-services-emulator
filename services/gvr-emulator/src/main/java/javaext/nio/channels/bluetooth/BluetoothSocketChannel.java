@@ -60,7 +60,7 @@ public class BluetoothSocketChannel extends SocketChannel /* implements java.nio
         if (this.readChannel == null) {
             this.readChannel = Channels.newChannel(this.socket.getInputStream());
         }
-        int readed = 0;
+        int readed;
         try {
             readed = this.readChannel.read(target);
         } catch (ClosedByInterruptException e) {

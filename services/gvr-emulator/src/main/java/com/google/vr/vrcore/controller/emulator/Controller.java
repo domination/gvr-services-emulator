@@ -1,6 +1,5 @@
 package com.google.vr.vrcore.controller.emulator;
 
-import android.bluetooth.BluetoothAdapter;
 import android.os.DeadObjectException;
 import android.os.Handler;
 import android.os.RemoteException;
@@ -31,18 +30,21 @@ public class Controller extends BaseController {
     public Controller(Handler handler, SocketAddress socketAddress) {
         super(handler);
         this.address = socketAddress;
+        if (socketAddress.getClass().equals(BluetoothSocketAddress.class)) {
+            this.tryBluetooth = true;
+        }
     }
 
-    private SocketAddress address;
+    private final SocketAddress address;
     private Selector selector;
 
-    private void connect(SelectionKey key) throws IOException {
+    private static void connect(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
         if (channel.isConnectionPending()) {
             channel.finishConnect();
         }
         channel.configureBlocking(false);
-        channel.register(selector, SelectionKey.OP_READ);
+        channel.register(key.selector(), SelectionKey.OP_READ);
     }
 
     private void read(SelectionKey key) throws IOException {
@@ -62,11 +64,11 @@ public class Controller extends BaseController {
         return totalRead;
     }
 
-    private ByteBuffer lengthBytes = ByteBuffer.allocate(4); // 4 bytes for integer - length of msg
-    private ByteBuffer protoBytes = ByteBuffer.allocate(100); // it should be enough
-    private CodedInputByteBufferNano e = null;
+    private final static ByteBuffer lengthBytes = ByteBuffer.allocate(4); // 4 bytes for integer - length of msg
+    private final static ByteBuffer protoBytes = ByteBuffer.allocate(100); // it should be enough
+    private static CodedInputByteBufferNano e = null;
 
-    private PhoneEvent readFromChannel(SocketChannel channel) throws IOException {
+    private synchronized static PhoneEvent readFromChannel(SocketChannel channel) throws IOException {
         lengthBytes.rewind(); //ByteBuffer lengthBytes = ByteBuffer.allocate(4);
         if (blockingRead(channel, lengthBytes) < 4) {
             return null;
@@ -102,7 +104,7 @@ public class Controller extends BaseController {
         return null;
     }
 
-    protected PhoneEvent phoneEvent;
+    private static PhoneEvent phoneEvent;
 
     private void handleClient(SocketChannel channel) throws IOException {
         if (!channel.isConnected()) {
@@ -152,19 +154,6 @@ public class Controller extends BaseController {
         return registeredControllerListener.currentState == ControllerStates.CONNECTED;
     }
 
-    public boolean setBluetooth(boolean enable) {
-        this.tryBluetooth = enable;
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter == null) return false;
-        boolean isEnabled = bluetoothAdapter.isEnabled();
-        if (enable && !isEnabled) {
-            return bluetoothAdapter.enable();
-        } else if (!enable && isEnabled) {
-            return bluetoothAdapter.disable();
-        }
-        return true;
-    }
-
     @Override
     public boolean tryConnect() {
 
@@ -181,10 +170,9 @@ public class Controller extends BaseController {
         setState(ControllerStates.CONNECTING);
 
         try {
-            SocketChannel channel = null;
+            SocketChannel channel;
 
             if (tryBluetooth) {
-                setBluetooth(true);
                 channel = BluetoothSocketChannel.open();
                 Log.d("tryConnect", "Device name: " + ((BluetoothSocketAddress) address).getDeviceName());
             } else {

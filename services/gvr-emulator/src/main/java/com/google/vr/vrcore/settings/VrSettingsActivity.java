@@ -1,5 +1,6 @@
 package com.google.vr.vrcore.settings;
 
+import android.app.ActionBar;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
@@ -30,7 +31,10 @@ public class VrSettingsActivity extends PreferenceActivity {
         super.onCreate(savedInstanceState);
         String action = getIntent().getAction();
         if (action != null && action.equals(getString(R.string.cardboard_viewer_action))) {
-            getActionBar().setDisplayHomeAsUpEnabled(true);
+            ActionBar actionBar = getActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayHomeAsUpEnabled(true);
+            }
         }
     }
 
@@ -51,7 +55,7 @@ public class VrSettingsActivity extends PreferenceActivity {
 
     @Override
     public void onHeaderClick(Header header, int position) {
-        if (header.fragmentArguments.getString("settings").equals("cardboard")) {
+        if ("cardboard".equals(header.fragmentArguments.getString("settings"))) {
             UiUtils.launchOrInstallCardboard(this, false);
         } else {
             super.onHeaderClick(header, position);

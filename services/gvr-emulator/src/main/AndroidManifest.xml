@@ -39,8 +39,11 @@
 
         <service
             android:name=".controller.ControllerService"
+            android:description="@string/service_controller_service_desc"
             android:enabled="true"
-            android:exported="true"> <!-- android:process="com.google.vr.vrcore.service" -->
+            android:exported="true"
+            android:label="@string/service_controller_service_name">
+            <!-- android:process="com.google.vr.vrcore.service" //commented for debug -->
             <intent-filter>
                 <action android:name="com.google.vr.vrcore.controller.BIND" />
             </intent-filter>

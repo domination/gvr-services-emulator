@@ -13,8 +13,8 @@ import java.util.Set;
 
 public class BluetoothSelector extends AbstractSelector {
 
-    private HashSet<SelectionKey> keys;
-    private HashSet<SelectionKey> selectedKeys;
+    private final HashSet<SelectionKey> keys;
+    private final HashSet<SelectionKey> selectedKeys;
 
     BluetoothSelector(SelectorProvider selectorProvider) {
         super(selectorProvider);
@@ -35,7 +35,7 @@ public class BluetoothSelector extends AbstractSelector {
     @Override
     protected SelectionKey register(AbstractSelectableChannel channel, int operations, Object attachment) {
         Log.d("BluetoothSelector", "register");
-        SelectionKey key = new BluetoothSelectionKey(channel);
+        SelectionKey key = new BluetoothSelectionKey(channel, this);
         key.interestOps(operations);
 
         this.keys.add(key);
