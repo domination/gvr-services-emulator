@@ -46,51 +46,41 @@ public abstract class BaseController implements Runnable {
 
     public boolean isEnabled = true;
 
-    public ControllerService service;
+    public Runnable afterDisconnect;
 
     @Override
     public void run() {
+        boolean refresh = false;
         if (isEnabled) {
+            boolean handled = false;
+
             if (!this.isConnected()) {
-                this.tryConnect();
-            }
-            if (isEnabled && !this.handle()) {
-                if (isEnabled) {
-                    this.handler.postDelayed(this, 2000);
-                    return;
-                } else {
-                    this.handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            service.refreshMapListeners();
-                        }
-                    }, 2000);
-                    return;
+                if (this.tryConnect()) {
+                    handled = this.handle();
                 }
-            }
-            try {
-                this.handler.post(this);
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
-                Log.d("basecontrolller", "illegal");
-            }
-        } else {
-            if (this.isConnected()) {
-                this.disconnect();
+            } else {
+                handled = this.handle();
             }
 
-            this.handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    service.refreshMapListeners();
-                }
-            }, 2000);
+            if (!handled) {
+                refresh = true;
+            }
+
+        } else {
+            refresh = true;
+        }
+
+        if (refresh) {
+            this.handler.removeCallbacks(this);
+            disconnect();
+            this.handler.postDelayed(afterDisconnect, 2000);
+        } else {
+            this.handler.post(this);
         }
     }
 
     public void stop() {
         this.isEnabled = false;
-        this.handler.removeCallbacks(this);
     }
 
     public void setControllerListener(RegisteredControllerListener controllerListener) {

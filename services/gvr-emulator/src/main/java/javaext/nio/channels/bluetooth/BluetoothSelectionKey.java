@@ -11,9 +11,11 @@ import java.nio.channels.SocketChannel;
 public class BluetoothSelectionKey extends SelectionKey {
 
     private SocketChannel channel;
+    private int operations;
 
     public BluetoothSelectionKey(SelectableChannel channel) {
         this.channel = (SocketChannel) channel;
+        this.operations = 0;
     }
 
     @Override
@@ -35,19 +37,24 @@ public class BluetoothSelectionKey extends SelectionKey {
     @Override
     public int interestOps() {
         Log.d("BluetoothSelectionKey", "interestOps");
-        return 0;
+        return this.operations;
     }
 
     @Override
     public SelectionKey interestOps(int operations) {
         Log.d("BluetoothSelectionKey", "interestOps");
-        return null;
+        this.operations = operations;
+        return this;
     }
 
     @Override
     public boolean isValid() {
         //Log.d("BluetoothSelectionKey", "isValid");
-        return this.channel.isConnected();
+        boolean isValid = this.channel.isConnected();
+        if (!isValid && this.isConnectable()) {
+            isValid = true;
+        }
+        return isValid;
     }
 
     @Override

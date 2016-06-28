@@ -5,12 +5,15 @@ import android.util.Log;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketAddress;
-import javaext.net.bluetooth.BluetoothSocket;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
+import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
+
+import javaext.net.bluetooth.BluetoothSocket;
 
 public class BluetoothSocketChannel extends SocketChannel /* implements java.nio.FileDescriptorChannel */ {
 
@@ -57,7 +60,18 @@ public class BluetoothSocketChannel extends SocketChannel /* implements java.nio
         if (this.readChannel == null) {
             this.readChannel = Channels.newChannel(this.socket.getInputStream());
         }
-        return this.readChannel.read(target);
+        int readed = 0;
+        try {
+            readed = this.readChannel.read(target);
+        } catch (ClosedByInterruptException e) {
+            throw e;
+        } catch (ClosedChannelException e) {
+            throw e;
+        } catch (IOException e) {
+            // do nothing
+            readed = -1;
+        }
+        return readed;
     }
 
     @Override

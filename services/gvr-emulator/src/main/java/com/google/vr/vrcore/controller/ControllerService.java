@@ -33,11 +33,13 @@ public class ControllerService extends Service {
     private HandlerThread handlerThread;
     private Handler handler;
     private Runnable stopAction;
+    private Runnable refreshMap;
 
     private IControllerService.Stub controllerService;
     private final Map<String, RegisteredControllerListener> mapListeners;
     private final Map<String, BaseController> mapControllerProviders;
     private int registerCount;
+    private BaseController controller = null;
 
     public ControllerService() {
         this.mapListeners = Collections.synchronizedMap(new HashMap<String, RegisteredControllerListener>());
@@ -85,6 +87,12 @@ public class ControllerService extends Service {
                 return ControllerService.this.unregisterListener(keyMasked);
             }
         };
+        this.refreshMap = new Runnable() {
+            @Override
+            public void run() {
+                refreshMapListeners();
+            }
+        };
     }
 
     @Override
@@ -104,13 +112,20 @@ public class ControllerService extends Service {
         if (isWiFi) {
             String ip = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("emulator_ip_address", getString(R.string.pref_default_ip_address));
             String port = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("emulator_port_number", getString(R.string.pref_default_port_number));
-            this.mapControllerProviders.put("EmulatorWiFi", new com.google.vr.vrcore.controller.emulator.Controller(this.handler, new InetSocketAddress(ip, Integer.parseInt(port))));
+            com.google.vr.vrcore.controller.emulator.Controller emulator = new com.google.vr.vrcore.controller.emulator.Controller(this.handler, new InetSocketAddress(ip, Integer.parseInt(port)));
+            emulator.afterDisconnect = this.refreshMap;
+            synchronized (this.mapControllerProviders) {
+                this.mapControllerProviders.put("EmulatorWiFi", emulator);
+            }
         }
         if (isBluetooth) {
             String bt_address = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext()).getString("emulator_bt_device", getString(R.string.pref_default_bt_device));
             com.google.vr.vrcore.controller.emulator.Controller emulator = new com.google.vr.vrcore.controller.emulator.Controller(this.handler, new BluetoothSocketAddress(bt_address, UUID.fromString(getString(R.string.pref_default_bt_uuid))));
+            emulator.afterDisconnect = this.refreshMap;
             if (emulator.setBluetooth(true)) {
-                this.mapControllerProviders.put("EmulatorBluetooth", emulator);
+                synchronized (this.mapControllerProviders) {
+                    this.mapControllerProviders.put("EmulatorBluetooth", emulator);
+                }
             }
         }
     }
@@ -131,14 +146,11 @@ public class ControllerService extends Service {
         restart();
     }
 
-    private BaseController controller = null;
-
     @Override
     public boolean onUnbind(Intent intent) {
         Log.d("com.google.vr.vrcore", "onUnbind " + intent.getAction());
         if (this.controller != null) {
             this.controller.stop();
-            this.controller = null;
         }
         this.handler.post(new Runnable() {
             @Override
@@ -152,7 +164,7 @@ public class ControllerService extends Service {
                 }
             }
         });
-        super.onUnbind(intent);
+        //super.onUnbind(intent);
         return true;
     }
 
@@ -206,17 +218,20 @@ public class ControllerService extends Service {
         });
     }
 
-    public final void registerListener(int controllerId, String key, IControllerListener listener) {
-        ensureLooper();
-        Log.d("ControllerService", "registerListener(" + controllerId + ", " + key + ", " + listener.getClass().toString() + ")");
-        try {
-            this.mapListeners.put(key, new RegisteredControllerListener(controllerId, listener));
+    private String currentKey;
 
-            for (Object o : this.mapControllerProviders.entrySet()) {
-                ((BaseController) ((Map.Entry) o).getValue()).isEnabled = true;
+    public final void registerListener(int controllerId, String key, IControllerListener listener) {
+        Log.d("ControllerService", "registerListener(" + controllerId + ", " + key + ", " + listener.getClass().toString() + ")");
+        this.currentKey = key;
+        try {
+            synchronized (this.mapListeners) {
+                this.mapListeners.put(key, new RegisteredControllerListener(controllerId, listener));
+            }
+            if (this.controller != null) {
+                this.controller.stop();
             }
 
-            refreshMapListeners();
+            this.handler.post(this.refreshMap);
         } catch (RemoteException e) {
             Log.d(ControllerService.class.getSimpleName(), "Attempted to register a dead listener, ID " + (key.length() != 0 ? key : ""));
         }
@@ -232,28 +247,30 @@ public class ControllerService extends Service {
     }
 
     public final void refreshMapListeners() {
+        this.handler.removeCallbacks(this.refreshMap);
+
         synchronized (this.mapListeners) {
 
             if (this.registerCount <= 0) return;
 
             Iterator it = this.mapListeners.entrySet().iterator();
             while (it.hasNext()) {
-                RegisteredControllerListener registeredControllerListener = (RegisteredControllerListener) ((Map.Entry) it.next()).getValue();
+                Map.Entry me = (Map.Entry) it.next();
+                if (!me.getKey().toString().equals(this.currentKey)) continue;
+                RegisteredControllerListener registeredControllerListener = (RegisteredControllerListener) me.getValue();
                 if (!registeredControllerListener.setState(ControllerStates.SCANNING)) {
                     it.remove();
                     continue;
                 }
 
-                controller = null;
+                this.controller = null;
 
                 synchronized (this.mapControllerProviders) {
                     for (Object o : this.mapControllerProviders.entrySet()) {
                         BaseController _controller = (BaseController) ((Map.Entry) o).getValue();
                         if (_controller.isAvailable()) {
-                            _controller.isEnabled = true;
                             _controller.setControllerListener(registeredControllerListener);
-                            _controller.service = this;
-                            controller = _controller;
+                            this.controller = _controller;
                             break;
                         }
                     }
@@ -261,24 +278,17 @@ public class ControllerService extends Service {
             }
         }
 
-        if (controller != null) {
-            this.handler.post(controller);
+        if (this.controller != null) {
+            this.handler.post(this.controller);
         } else {
             synchronized (this.mapControllerProviders) {
-
                 if (this.mapControllerProviders.size() == 0) return;
 
-                Iterator itControllerProviders = this.mapControllerProviders.entrySet().iterator();
-                while (itControllerProviders.hasNext()) {
-                    ((BaseController) ((Map.Entry) itControllerProviders.next()).getValue()).isEnabled = true;
+                for (Object o : this.mapControllerProviders.entrySet()) {
+                    ((BaseController) ((Map.Entry) o).getValue()).isEnabled = true;
                 }
             }
-            this.handler.postDelayed(new Runnable() {
-                @Override
-                public final void run() {
-                    refreshMapListeners();
-                }
-            }, 2000);
+            this.handler.postDelayed(this.refreshMap, 2000);
         }
     }
 }

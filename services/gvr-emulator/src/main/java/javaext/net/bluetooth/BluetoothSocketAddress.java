@@ -28,9 +28,23 @@ public class BluetoothSocketAddress extends SocketAddress {
     public BluetoothDevice getRemoteDevice() {
         if (bluetoothDevice == null) {
             BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-            bluetoothDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(this.address);
+            try {
+                bluetoothDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(this.address);
+            } catch (IllegalArgumentException e) {
+                //e.printStackTrace(); // is not a valid Bluetooth address
+            }
         }
         return bluetoothDevice;
+    }
+
+    public String getDeviceName() {
+        this.getRemoteDevice();
+        return bluetoothDevice != null ? bluetoothDevice.getName() : "";
+    }
+
+    public String getDeviceAddress() {
+        this.getRemoteDevice();
+        return bluetoothDevice != null ? bluetoothDevice.getAddress() : "";
     }
 
     //BluetoothDevice device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(addressEx.getHostName());

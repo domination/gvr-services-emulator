@@ -33,7 +33,6 @@ public class Controller extends BaseController {
         this.address = socketAddress;
     }
 
-    private SocketChannel channel;
     private SocketAddress address;
     private Selector selector;
 
@@ -168,6 +167,11 @@ public class Controller extends BaseController {
 
     @Override
     public boolean tryConnect() {
+
+        if (selector != null) {
+            this.disconnect();
+        }
+
         try {
             selector = this.tryBluetooth ? BluetoothSelector.open() : Selector.open();
         } catch (IOException e) {
@@ -176,16 +180,8 @@ public class Controller extends BaseController {
 
         setState(ControllerStates.CONNECTING);
 
-        if (channel != null) {
-            try {
-                channel.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
         try {
-            channel = null;
+            SocketChannel channel = null;
 
             if (tryBluetooth) {
                 setBluetooth(true);
@@ -236,6 +232,7 @@ public class Controller extends BaseController {
 
             try {
                 //Log.d("handle", key.isConnectable() + " " + channel.isConnectionPending() + " " + channel.finishConnect());
+                SocketChannel channel = (SocketChannel) key.channel();
                 if (key.isConnectable() && channel.isConnectionPending() && channel.finishConnect()) {
                     connect(key);
                     setState(ControllerStates.CONNECTED);
@@ -267,13 +264,30 @@ public class Controller extends BaseController {
 
     @Override
     public void disconnect() {
-        setState(ControllerStates.DISCONNECTED);
-        try {
-            if (channel.isOpen()) {
-                channel.close();
+        if (selector != null) {
+            if (selector.isOpen()) {
+                try {
+                    selector.select(1000);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                for (SelectionKey key : selector.selectedKeys()) {
+                    try {
+                        if (key.channel().isOpen()) {
+                            key.channel().close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                try {
+                    selector.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+        setState(ControllerStates.DISCONNECTED);
     }
 }

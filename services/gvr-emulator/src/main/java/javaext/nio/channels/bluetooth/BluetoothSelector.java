@@ -36,6 +36,8 @@ public class BluetoothSelector extends AbstractSelector {
     protected SelectionKey register(AbstractSelectableChannel channel, int operations, Object attachment) {
         Log.d("BluetoothSelector", "register");
         SelectionKey key = new BluetoothSelectionKey(channel);
+        key.interestOps(operations);
+
         this.keys.add(key);
         this.selectedKeys.add(key); //temporary fix - implement methods select
         return key;

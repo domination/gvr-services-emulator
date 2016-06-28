@@ -58,7 +58,9 @@ public class BluetoothSocket extends Socket {
                     isBound = true;
                 }
                 //impl.connect(remoteAddr, timeout);
-                this.bluetoothSocket.connect();
+                if (this.bluetoothSocket != null) {
+                    this.bluetoothSocket.connect();
+                }
                 //isConnected = true;
                 //cacheLocalAddress();
             } catch (IOException e) {
@@ -125,9 +127,11 @@ public class BluetoothSocket extends Socket {
                 BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
 
                 BluetoothDevice device = bluetoothSocketAddress.getRemoteDevice();
-                //if no device should throw
-                this.bluetoothSocket = device.createRfcommSocketToServiceRecord(bluetoothSocketAddress.getUUID());
-
+                if (device != null) {
+                    this.bluetoothSocket = device.createRfcommSocketToServiceRecord(bluetoothSocketAddress.getUUID());
+                } else {
+                    throw new ConnectException();
+                }
             } catch (SocketException e) {
                 throw e;
             } catch (IOException e) {
