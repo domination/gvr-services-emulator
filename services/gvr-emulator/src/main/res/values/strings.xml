@@ -28,7 +28,7 @@
 
     <string name="pref_category_title_bluetooth">Bluetooth settings:</string>
     <string name="pref_title_bt_device">Device name</string>
-    <string name="pref_default_bt_device"></string>
+    <string name="pref_default_bt_device">00:00:00:00:00:00</string>
     <string name="pref_default_bt_uuid">ab001ac1-d740-4abb-a8e6-1cb5a49628fa</string>
 
     <!-- Shortcut for controllerclient -->
