@@ -5,7 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
+import javaext.util.Log;
 
 public abstract class VrListenerService extends Service {
 
@@ -19,17 +19,17 @@ public abstract class VrListenerService extends Service {
     }
 
     public static final boolean isVrModePackageEnabled(Context context, ComponentName requestedComponent) {
-        Log.d("VrListenerService", "isVrModePackageEnabled(" + context.toString() + ", " + requestedComponent.toString() + ")");
+        Log.call("VrListenerService", "isVrModePackageEnabled", context.toString(), requestedComponent.toString());
         return false;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d("VrListenerService", "onBind " + intent.getAction());
+        Log.call("VrListenerService", "onBind", intent.getAction());
         return null;
     }
 
     public void onCurrentVrActivityChanged(ComponentName component) {
-        Log.d("VrListenerService", "onCurrentVrActivityChanged(" + component.toString() + ")");
+        Log.call("VrListenerService", "onCurrentVrActivityChanged", component.toString());
     }
 }
