@@ -1,16 +1,21 @@
 package com.google.vr.sdk.samples.controllerclient;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.widget.TextView;
 
-import com.google.vr.sdk.base.AndroidCompat;
 import com.google.vr.sdk.controller.Controller;
 import com.google.vr.sdk.controller.Controller.ConnectionStates;
 import com.google.vr.sdk.controller.ControllerManager;
 import com.google.vr.sdk.controller.ControllerManager.ApiStatus;
 
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -73,7 +78,40 @@ public class ControllerClientActivity extends Activity {
         // to configure the app via reflection.
         //
         // If this sample is compiled with the N SDK, Activity.setVrModeEnabled can be called directly.
-        AndroidCompat.setVrModeEnabled(this, true);
+        //AndroidNCompat.setIsAtLeastNForTesting(true);
+        //AndroidCompat.setVrModeEnabled(this, true);
+        //
+        String servicePackage = "com.google.vr.vrcore";
+        String serviceClass = "com.google.vr.vrcore.common.VrCoreListenerService";
+        ComponentName serviceComponent = new ComponentName(servicePackage, serviceClass);
+        try {
+            setVrModeEnabled(true, serviceComponent);
+        } catch (PackageManager.NameNotFoundException e) {
+            List<ApplicationInfo> installed = getPackageManager().getInstalledApplications(0);
+            boolean isInstalled = false;
+            for (ApplicationInfo app : installed) {
+                if (app.packageName.equals(servicePackage)) {
+                    isInstalled = true;
+                    break;
+                }
+            }
+            if (isInstalled) {
+                // Package is installed, but not enabled in Settings.  Let user enable it.
+                startActivity(new Intent("android.settings.VR_LISTENER_SETTINGS"));//Settings.ACTION_VR_LISTENER_SETTINGS));
+            } else {
+                // Package is not installed.  Send an intent to download this.
+                //sentIntentToLaunchAppStore(servicePackage);
+            }
+        }
+    }
+
+
+    public void setVrModeEnabled(boolean paramBoolean, ComponentName paramComponentName) throws PackageManager.NameNotFoundException {
+        Log.w(TAG, "setVrModeEnabled");
+        ComponentName componentName = new ComponentName("com.google.vr.vrcore", "com.google.vr.vrcore.common.VrCoreListenerService");
+        Intent intent = new Intent();
+        intent.setComponent(componentName);
+        startService(intent);
     }
 
     @Override

@@ -48,14 +48,21 @@ public class VrSettingsActivity extends PreferenceActivity {
 //        }
     }
 
+    private boolean returnFilteredPackageManager = false;
+
     @Override
     public PackageManager getPackageManager() {
-        return new FilteredPackageManager(this, super.getPackageManager());
+        if (this.returnFilteredPackageManager) {
+            this.returnFilteredPackageManager = false;
+            return new FilteredPackageManager(this, super.getPackageManager());
+        }
+        return super.getPackageManager();
     }
 
     @Override
     public void onHeaderClick(Header header, int position) {
         if ("cardboard".equals(header.fragmentArguments.getString("settings"))) {
+            this.returnFilteredPackageManager = true;
             UiUtils.launchOrInstallCardboard(this, false);
         } else {
             super.onHeaderClick(header, position);

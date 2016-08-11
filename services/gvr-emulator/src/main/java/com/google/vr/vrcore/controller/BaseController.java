@@ -146,6 +146,9 @@ public abstract class BaseController implements Runnable {
 
                     controllerAccelEvent.timestampNanos = event.accelerometerEvent.getTimestamp();
                     controllerListener.onControllerAccelEvent(controllerAccelEvent); //probably not used
+
+                    //controllerOrientationEvent.timestampNanos = event.accelerometerEvent.getTimestamp(); //this is just test for phone without gyroscope
+                    //controllerListener.onControllerOrientationEvent(controllerOrientationEvent); //faking it when no orientation event occurs
                     break;
                 case PhoneEvent.Type.ORIENTATION:
                     controllerOrientationEvent.qx = -event.orientationEvent.getX();

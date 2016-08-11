@@ -247,6 +247,12 @@ public class Controller extends BaseController {
                 }
             }
         }
+
+        if (selector.selectedKeys().size() == 0) {
+            isEnabled = false;
+            return false;
+        }
+
         return true;
     }
 

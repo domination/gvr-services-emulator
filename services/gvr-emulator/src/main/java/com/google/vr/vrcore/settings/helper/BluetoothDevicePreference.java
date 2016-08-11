@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -14,6 +15,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.SimpleAdapter;
+
+import com.google.vr.vrcore.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,9 +48,9 @@ public class BluetoothDevicePreference extends ListPreference implements DialogI
 
     private List<Map<String, String>> entryList = null;
 
-    private void init() {
+    private void readBluetoothDevices() {
+        entryList.clear();
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        entryList = new ArrayList<>();
 
         if (mBluetoothAdapter != null) {
             Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
@@ -58,7 +61,18 @@ public class BluetoothDevicePreference extends ListPreference implements DialogI
                 m.put("address", bt.getAddress());
                 entryList.add(m);
             }
-        }
+        }// else {
+//            Map<String, String> m = new HashMap<>();
+//            m.put("name", "None");
+//            m.put("address", getContext().getString(R.string.pref_default_bt_device));
+//            entryList.add(m);
+//        }
+    }
+
+    private void init() {
+        entryList = new ArrayList<>();
+
+        readBluetoothDevices();
 
         String[] keys = {"name", "address"};
         int[] widgetIds = {android.R.id.text1, android.R.id.text2};
@@ -132,12 +146,30 @@ public class BluetoothDevicePreference extends ListPreference implements DialogI
         return output;
     }
 
+    private boolean setBluetooth(boolean enable) {
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter == null) return false;
+        boolean isEnabled = bluetoothAdapter.isEnabled();
+        if (enable && !isEnabled) {
+            return bluetoothAdapter.enable();
+        } else if (!enable && isEnabled) {
+            return bluetoothAdapter.disable();
+        }
+        return true;
+    }
+
     @Override
     protected void showDialog(Bundle state) {
 //        super.showDialog(state);
 //        AlertDialog dialog = (AlertDialog) super.getDialog();
 //        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
 //        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(false);
+
+        if(!setBluetooth(true)) {
+            return;
+        }
+
+        readBluetoothDevices();
 
         Context context = getContext();
 
